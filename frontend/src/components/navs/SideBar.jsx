@@ -1,7 +1,7 @@
 import React from "react";
 import { Home, User, Star, BellPlus, Search,BookPlus} from "lucide-react"; // mock icons
 
-const BlogSidebar = () => {
+const BlogSidebar = ({scrollToTarget, showSearchPage}) => {
   return (
     <nav className="h-[100vh] border-r border-[hsl(0,0%,30%)] overflow-auto bg-[#0f0f0f] text-white px-2 py-6 flex flex-col justify-between">
       {/* Top Content */}
@@ -32,7 +32,9 @@ const BlogSidebar = () => {
             <User size={16} />
             About
           </a>
-          <a href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          <a
+          onClick={scrollToTarget}
+          href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <BellPlus size={16} />
             Subscribe
           </a>
@@ -40,7 +42,9 @@ const BlogSidebar = () => {
             <BookPlus size={16} />
             Contribute
           </a>
-          <a href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          <a 
+          onClick={showSearchPage}
+          href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <Search size={16} />
             Search
           </a>

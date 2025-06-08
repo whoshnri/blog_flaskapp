@@ -4,7 +4,7 @@ import React from "react"
 
 import { useState } from "react"
 
-export function SubscribeSection() {
+export function SubscribeSection({targetRef}) {
   const [email, setEmail] = useState("")
 
   const handleSubmit = (e) => {
@@ -14,7 +14,7 @@ export function SubscribeSection() {
   }
 
   return (
-    <section className="py-16 px-6 md:px-12 bg-[hsl(0,0%,10%)]">
+    <section ref={targetRef} className="py-16 px-6 md:px-12 bg-[hsl(0,0%,10%)]">
       {/* Heading */}
         <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-3 tracking-tight">
           Yo, buddy!<br />

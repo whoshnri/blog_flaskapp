@@ -1,0 +1,78 @@
+<svg
+  width="320"
+  height="180"
+  viewBox="0 0 320 180"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {/* Sad document */}
+  <rect
+    x="110"
+    y="30"
+    width="100"
+    height="100"
+    rx="8"
+    stroke="#bbb"
+    strokeWidth="3"
+    fill="transparent"
+  />
+  {/* Folded corner */}
+  <polyline
+    points="200,30 210,40 200,40"
+    stroke="#bbb"
+    strokeWidth="3"
+    fill="transparent"
+  />
+  {/* Zigzag (torn) bottom */}
+  <polyline
+    points="110,130 120,125 130,135 140,125 150,135 160,125 170,135 180,125 190,135 200,125 210,130"
+    stroke="#bbb"
+    strokeWidth="3"
+    fill="transparent"
+  />
+  {/* Sad face */}
+  <circle cx="140" cy="70" r="4" fill="#bbb" />
+  <circle cx="180" cy="70" r="4" fill="#bbb" />
+  <path
+    d="M145 90 Q160 105 175 90"
+    stroke="#bbb"
+    strokeWidth="3"
+    fill="transparent"
+  />
+  {/* Magnifying glass */}
+  <circle cx="220" cy="100" r="14" stroke="#bbb" strokeWidth="3" fill="transparent" />
+  <rect
+    x="232"
+    y="112"
+    width="16"
+    height="3"
+    rx="1.5"
+    transform="rotate(45 232 112)"
+    fill="transparent"
+    stroke="#bbb"
+    strokeWidth="3"
+  />
+  {/* X mark */}
+  <line x1="85" y1="90" x2="95" y2="100" stroke="#bbb" strokeWidth="3" />
+  <line x1="95" y1="90" x2="85" y2="100" stroke="#bbb" strokeWidth="3" />
+  {/* Three lines under document */}
+  <line x1="70" y1="150" x2="250" y2="150" stroke="#bbb" strokeWidth="3" />
+  <line x1="90" y1="160" x2="230" y2="160" stroke="#bbb" strokeWidth="2" />
+  <line x1="120" y1="170" x2="200" y2="170" stroke="#bbb" strokeWidth="1.5" />
+  {/* Exclamation lines */}
+  <line x1="135" y1="38" x2="130" y2="22" stroke="#bbb" strokeWidth="2" />
+  <line x1="160" y1="28" x2="160" y2="15" stroke="#bbb" strokeWidth="2" />
+  <line x1="185" y1="38" x2="190" y2="22" stroke="#bbb" strokeWidth="2" />
+  {/* Text */}
+  <text
+    x="160"
+    y="195"
+    textAnchor="middle"
+    fill="#bbb"
+    fontSize="22"
+    fontFamily="Arial, sans-serif"
+    fontWeight="bold"
+  >
+    No Data Found!
+  </text>
+</svg>

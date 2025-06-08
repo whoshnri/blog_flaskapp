@@ -5,8 +5,8 @@
 /* src/globals.css */
 
 :root {
-  --font-sans: 'Jetbrains mono', sans-serif;
-  --font-cursive: 'Dancing Script', cursive;
+  --font-sans: "Jetbrains mono", sans-serif;
+  --font-cursive: "Dancing Script", cursive;
 }
 
 body {
@@ -14,12 +14,13 @@ body {
   font-family: var(--font-sans);
 }
 
-h1, .cursive {
+.cursive {
   font-family: var(--font-cursive);
 }
 
-h3, .roman{
-  font-family: 'Times New Roman', Times, serif;
+h3,
+.roman {
+  font-family: "Times New Roman", Times, serif;
 }
 
 @layer base {
@@ -92,7 +93,7 @@ h3, .roman{
 /* For modern browsers */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: hsl(0, 0%, 54%) black ;
+  scrollbar-color: hsl(0, 0%, 54%) black;
   border-radius: 6px;
 }
 
@@ -100,7 +101,7 @@ h3, .roman{
 .custom-scrollbar::-webkit-scrollbar {
   scrollbar-width: thin;
   width: 8px;
-  scrollbar-color: hsl(0, 0%, 54%) black ;
+  scrollbar-color: hsl(0, 0%, 54%) black;
   border-radius: 6px;
 }
 
@@ -112,4 +113,69 @@ h3, .roman{
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: black;
   border-radius: 6px;
+}
+
+@layer utilities {
+  .animate-stars::before,
+  .animate-stars::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(
+      -45deg,
+      #000000 0px,
+      #262424 1px,
+      transparent 100px,
+      transparent 40px
+    );
+    animation: shootingStars 200s linear infinite,
+      twinkle 90s ease-in-out infinite;
+    opacity: 0.04;
+  }
+
+  @keyframes shootingStars {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/* override editor colors */
+.ql-container {
+  background-color: transparent !important;
+  color: #e5e7eb !important; /* Tailwind's text-gray-300 */
+  border: none !important;
+}
+
+.ql-toolbar {
+  background-color: #111 !important;
+  border-color: #333 !important;
+  position: sticky;
+  top: 0;
+  background-color: #000; /* match editor bg */
+  z-index: 10;
+  border-bottom: 1px solid #374151; /* gray-700 */
+}
+
+.ql-editor {
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  border-bottom: 1px solid gray;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-15px);
+  }
 }
