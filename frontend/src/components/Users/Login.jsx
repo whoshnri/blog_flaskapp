@@ -10,6 +10,40 @@ export default function LoginForm() {
   const [errors, setErrors] = useState({});
   const inputRef = useRef(null);
 
+  const auth = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+    if (validate()) {
+      const data = {
+        email: email,
+        password: password,
+      };
+      const url = "http://127.0.0.1:5000/get/user";
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      };
+      const response = await fetch(url, options);
+      const results = await response.json();
+      if(results.status == 402){
+        newErrors.password = "Invalid Password"
+        setErrors(newErrors)
+          
+      }else if(results.status == 401){
+        setStep(1)
+        newErrors.email = "Invalid Email"
+        setErrors(newErrors)
+
+      }
+      else if (response.status === 200){
+        console.log("Successful")
+      }
+    }
+  };
+
   const steps = [1, 2];
 
   useEffect(() => {
@@ -22,15 +56,6 @@ export default function LoginForm() {
   };
 
   const prevStep = () => setStep(step - 1);
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      console.log("Logging in with:", { email, password });
-      // Proceed with login logic
-    }
-  };
-
   const validate = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -123,7 +148,7 @@ export default function LoginForm() {
                   ref={inputRef}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleLogin(e)}
+                  onKeyDown={(e) => e.key === "Enter" && auth(e)}
                   className={`w-full bg-black/40 border ${
                     errors.password ? "border-red-500" : "border-gray-700"
                   } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
@@ -152,7 +177,7 @@ export default function LoginForm() {
                   />
                   <button
                     type="submit"
-                    onClick={handleLogin}
+                    onClick={auth}
                     className="w-fit mt-2 bg-green-600 hover:bg-green-700 text-white py-[.3rem] px-4 rounded-md font-bold uppercase tracking-wide"
                   >
                     Login

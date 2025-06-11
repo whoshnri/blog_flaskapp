@@ -3,7 +3,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Trash2 } from "lucide-react";
 
-export default function CreateBlogCard() {
+export default function CreateBlogCard({author}) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
@@ -16,17 +16,42 @@ export default function CreateBlogCard() {
     "Life",
     "Code",
     "Opinion",
-    ,
     "Life Experiences",
     "Other",
   ];
+  const discard = () => {
+    setContent("")
+    setCategory("")
+    setTitle("")
+  }
 
   const handleSaveDraft = () => {
     console.log("Draft saved", { title, category });
   };
 
-  const handlePublish = () => {
-    console.log("Published", { title, category });
+  const handlePublish = async() => {
+    const data = {
+      "author" : author,
+      "category" : category,
+      "content" : content,
+      "title" : title,
+    }
+    const url = "http://127.0.0.1:5000/add/blog"
+    const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      };
+    const reponse = await fetch(url, options)
+    const res = await reponse.json()
+    if (reponse.status === 201){
+      console.log(res.message)
+    }else{
+      console.log(res.error)
+    }
+    discard()
   };
 
   return (
@@ -157,12 +182,8 @@ export default function CreateBlogCard() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // Reset form fields or do whatever discard means
-                  setTitle("");
-                  setCategory("");
-                  setContent("");
-                  setShowDiscardConfirm(false);
+                onClick={() => {discard()
+                  setShowDiscardConfirm()
                 }}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white"
               >
@@ -189,6 +210,7 @@ export default function CreateBlogCard() {
               </button>
               <button
                 onClick={() => {
+                  handlePublish()
                   setShowPublishConfirm(false);
                 }}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white"

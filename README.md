@@ -1,2 +1,2 @@
-# blog_flaskapp
-A blog webapp i built for practice. I might host it but idk yet
+My personal blog site. As practice ;p;
+So i added a lot . New components and more interactivity soo ill be ready to develop and link the backend

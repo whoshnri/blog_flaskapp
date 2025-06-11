@@ -1,11 +1,79 @@
-import React from "react";
-import blogs from "../datasets/Blogs.json";
+import React , {useEffect, useState} from "react";
 import { Eye, Heart , ThumbsUp} from "lucide-react";
+import Loader from "./Loader"
+import parse from 'html-react-parser';
 
-export default function FuturisticCard() {
-  const blog = blogs[0];
-  blog.content =
-    "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae voluptas accusamus exercitationem hic obcaecati sapiente impedit officia excepturi minus, earum maiores laboriosam voluptatem est fugit. Obcaecati doloribus magni, natus aut ipsam ut voluptatum voluptas sapiente ducimus exercitationem maiores commodi voluptatem possimus tempore hic minima provident praesentium dolores vel delectus. Fugiat provident excepturi cumque optio, dignissimos, similique odio illo voluptas, numquam dolore praesentium repellat aliquam? Architecto eligendi assumenda earum provident laudantium suscipit nisi odio vitae, alias quasi perferendis libero repudiandae numquam ab a id officia illum enim tenetur, cupiditate quia quaerat similique corrupti. Voluptatem error repudiandae minima dolorum vel molestias at fugit doloribus facilis, quibusdam voluptatum cumque placeat doloremque mollitia consectetur? Similique natus velit numquam quo cumque excepturi consequuntur deleniti culpa fugit libero necessitatibus error dolore, tenetur neque laboriosam. A eveniet dignissimos totam delectus fugit quos iste maiores nulla doloremque esse assumenda voluptate accusamus molestias adipisci quibusdam libero, suscipit ad. Ratione a voluptate recusandae reprehenderit consectetur totam ex. Facere cumque ipsum ipsa earum laudantium blanditiis libero iusto dolor inventore aliquam dolore, enim possimus amet, dicta ex, adipisci corporis vel consectetur quo. Optio sapiente qui accusantium eligendi doloribus sint, dolorum quo cum, veniam odit minima culpa architecto nam voluptates pariatur placeat tempore.";
+export default function FuturisticCard({id}) {
+  const [blog, setBlog] = useState({})
+  const [loadError, setLoadError] = useState(true)
+  const [loading, setLoading] = useState(true);
+  const [liked , hasLiked] = useState(false)
+
+useEffect(() => {
+  fetch(`http://127.0.0.1:5000/add/views/${id}`, {
+    method: 'PATCH',
+  });
+  getBlog()
+}, [id]);
+
+
+
+
+const addLike = async () => {
+  try {
+    const res = await fetch(`http://127.0.0.1:5000/add/likes/${id}`, {
+      method: 'PATCH',
+    });
+    const data = await res.json();
+    if (res.status === 200) {
+      hasLiked(true)
+      getBlog()
+      alert("Liked!");
+    } else if (res.status == 403){
+      hasLiked(true)
+      alert(data.message);  // e.g. "Already liked"
+    }
+  } catch (err) {
+    console.error("Like error:", err);
+  }
+};
+
+const removeLike = async () => {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/remove/likes/${id}`, {
+      method: 'PATCH',
+    });
+    const data = await response.json();
+
+    if (response.status === 200) {
+      alert("Like removed");
+      getBlog(); // refresh blog data
+      hasLiked(false); // update UI
+    } else {
+      hasLiked(false)
+      alert(data.message); // e.g. "You haven't liked this post"
+    }
+  } catch (error) {
+    console.error("Remove like error:", error);
+  }
+};
+
+
+
+const getBlog = async () => {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/get/blog/${id}`);
+    const res = await response.json();
+    if (response.status === 200) {
+      setBlog(res);
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen fixed bg-black/30 left-0 right-0  selection:flex items-center justify-center text-gray-300 font-sans overflow-hidden">
@@ -16,6 +84,7 @@ export default function FuturisticCard() {
 
       <div className="w-[95%] h-[100vh] mt-[1vh] mb-[1vh] mx-auto relative">
         {/* Card Container */}
+        {loading && <Loader/>}
         <div className="relative w-full h-[96%] bg-gradient-to-br to-black from-black/80 border border-gray-700 rounded-md shadow-2xl overflow-hidden">
           {/* Header Bar */}
           <div className="h-3 bg-black border-b border-gray-700 relative">
@@ -27,7 +96,7 @@ export default function FuturisticCard() {
             </div>
 
             {/* Diagonal Accent Lines */}
-            <div className="absolute inset-0 opacity-10">
+            {/* <div className="absolute inset-0 opacity-10">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -40,7 +109,7 @@ export default function FuturisticCard() {
                   }}
                 ></div>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Metadata */}
@@ -54,7 +123,7 @@ export default function FuturisticCard() {
                 {blog.category}
               </p>
               <p className="text-xs">
-                <span className="text-xs text-gray-300">Date: </span>
+                <span className="text-xs text-gray-300">Created: </span>
                 {blog.date}
               </p>
               <p className="text-xs">
@@ -75,26 +144,39 @@ export default function FuturisticCard() {
           </div>
 
           {/* Content Area */}
-          <div className="flex h-[calc(100%-11rem)] overflow-hidden">
+          <div className="h-[100%]">
+          <div className="flex h-[100%] overflow-hidden">
             <div className="w-[5%] border-r bg-black/30 border-gray-700"></div>
             <div className="w-[95%] overflow-y-auto roman custom-scrollbar px-6 py-4 text-sm leading-6 tracking-wide text-gray-300">
-              {blog.content}
+              {blog.content ? parse(blog.content) : null}
             </div>
+            {/* Footer Line */}
+          <div
+          role="button"
+            className="h-fit bottom-0 right-0 left-0 absolute backdrop-blur-3xl flex justify-between bg:gray-900 border-t border-gray-700 text-center uppercase"
+          >
+            { liked ? 
+              <span
+              onClick={removeLike}
+            className={`border-r hover:ease-in-out duration-200 border-gray-600 group w-[50%] h-full py-[.27rem]  xs:pt-1 gap-1 hover:bg-red-600 justify-center flex `}>
+            <p className="font-bold">unLike</p>
+              <ThumbsUp className="mt-[.2rem] h-4 rotate-180" />
+            </span>
+            : <span
+            onClick={addLike}
+            className={`border-r hover:ease-in-out duration-200 border-gray-600 group w-[50%] h-full py-[.27rem]  xs:pt-1 gap-1 hover:bg-green-600 justify-center flex `}>
+            <p className="font-bold">Like</p>
+              <ThumbsUp className="mt-[.1rem] h-4" />
+            </span>}
+            <span 
+            className="border-l hover:ease-in-out duration-200 border-gray-600 group w-[50%] h-full pt-1 xs:pt-1 flex justify-center gap-2 font-bold hover:bg-red-500">
+              <p>Close</p>
+              <span className="text-2xl mt-[-.19rem]">&times;</span>
+            </span>
+          </div>
           </div>
 
-          {/* Footer Line */}
-          <div
-            role="button"
-            className="h-[12em] flex justify-between bg:gray-900 border-t border-gray-700 text-center uppercase"
-          >
-            <span className="border-r hover:ease-in-out duration-200 border-gray-600 group w-[50%] h-full pt-1 xs:pt-3 gap-1 justify-center flex hover:bg-green-600">
-              <p className="font-bold">Like</p>
-              <ThumbsUp className="mt-[.1rem] h-4" />
-            </span>
-            <span className="border-l hover:ease-in-out duration-200 border-gray-600 group w-[50%] h-full pt-1 xs:pt-3 flex justify-center gap-2 font-bold hover:bg-red-500">
-              <p>Close</p>
-              <span className="text-2xl mt-[-.29rem]">&times;</span>
-            </span>
+          
           </div>
         </div>
 

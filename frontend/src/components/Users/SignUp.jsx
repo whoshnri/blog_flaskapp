@@ -12,13 +12,21 @@ export default function SignupForm() {
     password: "",
     confirmPassword: "",
     acceptedTerms: false,
+    image: null, // <-- add this
   });
+
   const [errors, setErrors] = useState({});
   const inputRef = useRef(null);
+  const [preview, setPreview] = useState(null);
+  const [closePrev, setClosePrev] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     if (inputRef.current) inputRef.current.focus();
   }, [step]);
+
+  const dropRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -29,6 +37,7 @@ export default function SignupForm() {
   };
 
   const validate = () => {
+    setErrors(null);
     const newErrors = {};
     if (step === 1 && !formData.username.trim())
       newErrors.username = "Username is required";
@@ -43,28 +52,167 @@ export default function SignupForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const nextStep = async () => {
+    if (loading) return; // Prevent multiple clicks
+    setApiError("");
+    setLoading(true);
 
-  const nextStep = () => {
-    if (validate()) setStep(step + 1);
+    try {
+      if (step === 1) {
+        if (validate()) {
+          const isValid = await checkusername();
+          if (isValid) {
+            setStep(step + 1);
+          } else {
+            setApiError("Username is already taken.");
+          }
+        }
+      } else if (step === 2) {
+        if (validate()) {
+          const isValid = await checkemail();
+          if (isValid) {
+            setStep(step + 1);
+          } else {
+            setApiError("Email is already in use.");
+          }
+        }
+      } else if (step === 3) {
+        if (validate()) {
+          setStep(step + 1);
+        }
+      } else if (step === 5 && formData.acceptedTerms) {
+        await handleSubmit();
+      } else {
+        if (validate()) {
+          setStep(step + 1);
+        }
+      }
+    } catch (error) {
+      setApiError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = () => {
-    if (!formData.acceptedTerms) return;
-    console.log("Submitted:", formData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const data = {};
+    data.username = formData.username;
+    data.email = formData.email;
+    data.password = formData.confirmPassword;
+    if (formData.image){
+      data.pfp = formData.image;
+      console.log(data);
+      const url = "http://127.0.0.1:5000/add/user";
+    const options = {
+      method: "POST",
+      body: JSON.stringify(data),
+    };
+      const response = await fetch(url, options);
+      const res = await response.json();
+
+      if (response.status === 200 || response.status === 201) {
+        console.log(data.message);
+      } else {
+        console.error(data.message);
+      }
+    }
+    console.log(data);
+    const url = "http://127.0.0.1:5000/add/user";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+    const response = await fetch(url, options);
+    const res = await response.json();
+
+    if (res.status === 200 || res.status === 201) {
+      console.log(res.message);
+    } else {
+      console.log(res.message);
+    }
+    // setFormData({
+    //   username: "",
+    //   email: "",
+    //   password: "",
+    //   confirmPassword: "",
+    //   acceptedTerms: false,
+    //   image: null, // <-- add this
+    // });
+    setPreview(null);
+  };
+
+  const checkusername = async () => {
+    setApiError(null);
+    console.log(formData.username);
+    const url = "http://127.0.0.1:5000/check";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        i: "username",
+        username: formData.username,
+      }),
+    };
+    const response = await fetch(url, options);
+    const reply = await response.json();
+    console.log(reply.status);
+    if (reply.status === 200) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const checkemail = async () => {
+    setApiError(null);
+    console.log(formData.email);
+    const url = "http://127.0.0.1:5000/check";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        i: "email",
+        email: formData.email,
+      }),
+    };
+    const response = await fetch(url, options);
+    const reply = await response.json();
+    console.log(reply.status);
+    if (reply.status === 200) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   const getPasswordStrength = () => {
-    const length = formData.password.length;
-    if (length > 10) return "Strong";
-    if (length >= 6) return "Moderate";
+    const password = formData.password;
+    let score = 0;
+    if (password.length >= 6) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score >= 4) return "Strong";
+    if (score === 3) return "Moderate";
     return "Weak";
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (step === 4) {
+      if (step === 5 && formData.acceptedTerms) {
         handleSubmit();
       } else {
         nextStep();
@@ -72,7 +220,7 @@ export default function SignupForm() {
     }
   };
 
-  const steps = [1, 2, 3, 4];
+  const steps = [1, 2, 3, 4, 5];
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white sans z-50">
@@ -113,6 +261,13 @@ export default function SignupForm() {
                   placeholder="your_username"
                   className="w-full px-3 py-2 bg-black/40 border border-gray-700 rounded-md focus:outline-none focus:ring focus:ring-gray-600"
                 />
+                {apiError && (
+                  <p className="text-red-500 text-sm mt-2">{apiError}</p>
+                )}
+
+                {loading && (
+                  <p className="text-gray-400 text-sm mt-2">Processing...</p>
+                )}
                 {errors.username && (
                   <p className="text-red-500 text-sm mt-1">{errors.username}</p>
                 )}
@@ -144,6 +299,13 @@ export default function SignupForm() {
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
+                {apiError && (
+                  <p className="text-red-500 text-sm mt-2">{apiError}</p>
+                )}
+
+                {loading && (
+                  <p className="text-gray-400 text-sm mt-2">Processing...</p>
                 )}
                 <div className="flex justify-between mt-4">
                   <ArrowLeft
@@ -245,6 +407,89 @@ export default function SignupForm() {
             )}
 
             {step === 4 && (
+              <div>
+                <label className="block mb-2 text-sm text-gray-400 font-medium">
+                  Add a Display Picture (Optional)
+                </label>
+
+                {!preview && (
+                  <div
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer?.files?.[0];
+                      if (file && file.type.startsWith("image/")) {
+                        const imageUrl = URL.createObjectURL(file);
+                        setFormData((prev) => ({ ...prev, image: file }));
+                        setPreview(imageUrl);
+                      }
+                    }}
+                    onClick={() => dropRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="w-full h-32 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-gray-400 hover:border-green-500 transition-all cursor-pointer mb-4"
+                  >
+                    Drag & Drop Image Here
+                  </div>
+                )}
+
+                {preview && (
+                  <div className="mb-4">
+                    <p className="text-gray-400 text-sm mb-1">Preview:</p>
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="w-32 h-32 mx-auto object-cover rounded-full border border-gray-600"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-4 mb-4">
+                  {preview ? (
+                    <input
+                      type="button"
+                      role="button"
+                      value="Remove"
+                      onClick={() => {
+                        setPreview(null);
+                        setFormData((prev) => ({ ...prev, image: null }));
+                      }}
+                      className="text-sm rounded-md p-2 text-black font-bold hover:bg-gray-400/70 bg-gray-400 "
+                    />
+                  ) : (
+                    <input
+                      type="file"
+                      ref={dropRef}
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (closePrev == false) {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const imageUrl = URL.createObjectURL(file);
+                            setFormData((prev) => ({ ...prev, image: file }));
+                            setPreview(imageUrl);
+                          }
+                        }
+                      }}
+                      className="text-sm cursor-pointer text-gray-300 "
+                    />
+                  )}
+                </div>
+
+                <div className="flex justify-between mt-4">
+                  <ArrowLeft
+                    role="button"
+                    onClick={prevStep}
+                    className="w-16 h-9 bg-green-600 hover:bg-green-700 text-white rounded-md font-bold uppercase tracking-wide"
+                  />
+                  <button
+                    onClick={nextStep}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md font-bold"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 5 && (
               <div>
                 <div className="flex items-start mb-4">
                   <input

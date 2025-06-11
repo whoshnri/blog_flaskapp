@@ -7,6 +7,10 @@ import Footer from "./components/Footer";
 import Loader from './components/Loader'
 import SearchPage from "./components/Search";
 import CreateBlogCard from './components/CreateBlog'
+import SignupForm from "./components/Users/SignUp";
+import LoginForm from "./components/Users/Login";
+import FuturisticCard from "./components/BlogBodey"
+
 
 import { useRef, useState } from "react";
 const Layout = () => {
@@ -24,41 +28,49 @@ const Layout = () => {
     setSearchPage(!searchPage);
   };
 
+  
   const targetRef = useRef(null);
   return (
-    <>
-      {/* <div className="flex">
-        <div className="">
-          <div className="hidden xs:block ">
-            <BlogSidebar
-              scrollToTarget={scrollToTarget}
-              showSearchPage={showSearchPage}
-            />
-          </div>
-          <div className="block xs:hidden">
-            <MobileNav />
-          </div>
-        </div>
 
-        {searchPage ? (
-          <div className={`h-[100vh] relative w-full custom-scrollbar  overflow-auto ${showSearchPageLoader ? 'overflow-hidden' : ''}`}>
-            {" "}
-           <SearchPage></SearchPage>
-            { !showSearchPageLoader && (<Loader></Loader>)}
-           {" "}
-          </div>
-        ) : (
-          <div className="h-[100vh] w-full custom-scrollbar  overflow-auto">
-            {" "}
-            <HeroSection></HeroSection>
-            <SubscribeSection targetRef={targetRef}></SubscribeSection>
-            <Footer></Footer>{" "}
-          </div>
-        )}
-      </div> */}
+      <> 
+      </>
 
-      <CreateBlogCard></CreateBlogCard>
-    </>
+
+    // <>
+    //   <div className="flex">
+    //     <div className="">
+    //       <div className="hidden xs:block ">
+    //         <BlogSidebar
+    //           scrollToTarget={scrollToTarget}
+    //           showSearchPage={showSearchPage}
+    //         />
+    //       </div>
+    //       <div className="block xs:hidden">
+    //         <MobileNav />
+    //       </div>
+    //     </div>
+
+    //     {searchPage ? (
+    //       <div className={`h-[100vh]  bg-black relative w-full custom-scrollbar  overflow-auto ${!showSearchPageLoader ? 'overflow-hidden' : ''}`}>
+    //         {" "}
+    //        <SearchPage></SearchPage>
+    //        <div className="mt-7"></div>
+    //        <Footer></Footer>
+    //         {/* {showSearchPageLoader && (<Loader></Loader>)} */}
+    //        {" "}
+    //       </div>
+    //     ) : (
+    //       <div className="h-[100vh] w-full custom-scrollbar  overflow-auto">
+    //         {" "}
+    //         <HeroSection></HeroSection>
+    //         <SubscribeSection targetRef={targetRef}></SubscribeSection>
+    //         <Footer></Footer>{" "}
+    //       </div>
+    //     )}
+    //   </div>
+
+    //   {/* <CreateBlogCard></CreateBlogCard> */}
+    // </>
   );
 };
 
