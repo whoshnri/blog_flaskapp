@@ -1,54 +1,158 @@
-import React, { useState } from "react";
-import { Home, Info, Star, Mail, Search } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import {useNavigate} from "react-router-dom"
+import {
+  Home,
+  User,
+  BellPlus,
+  BookPlus,
+  Search,
+  X
+} from "lucide-react";
 
-const FloatingNav = () => {
+const FloatingNav = ({ scrollToTarget}) => {
   const [open, setOpen] = useState(false);
+  const navRef = useRef();
+  const navigate = useNavigate()
 
-  const navItems = [
-    { label: "Home", icon: <Home size={18} /> },
-    { label: "About", icon: <Info size={18} /> },
-    { label: "Search", icon: <Search size={18} /> },
-    { label: "Contact", icon: <Mail size={18} /> },
-  ];
+  // Detect outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
 
-  return (
-    <div className="fixed flex flex-row-reverse top-4 right-5 z-50 font-mono">
-      {/* Floating Toggle Circle */}
-      <div
-        onClick={() => setOpen(!open)}
-        className={`
-          w-14 z-20 h-14 bg-white text-black rounded-xl flex items-center justify-center 
-          cursor-pointer transition-all duration-200 hover:bg-slate-800
-        `}
-      >
-        <span className="text-xl z-20 font-bold select-none">{open ? "X" : "hb"}</span>
-      </div>
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
 
-      {/* Rollout Menu */}
-      <div
-        className={`
-          flex gap-3 scale-[80%] my-2 pl-2 transition-all duration-200 ease-in-out max-[512px]:scale-[50%]
-          ${open ? "opacity-100 translate-x-[100px] max-[512px]:translate-x-[100px]" : "opacity-0 translate-x-[120px] pointer-events-none "}
-        `}
-      >
-        {navItems.map(({ label, icon }) => (
-          <a
-            key={label}
-            href={`/${label.toLowerCase()}`}
-            className="
-              flex items-center gap-2 bg-white text-black rounded-md py-2 px-4 shadow-md 
-              hover:bg-gray-200 transition-all duration-300 border border-black
-              text-sm font-mono
-            "
-            onClick={() => setOpen(false)}
+    // Clean up
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+
+    return (
+      <div className="fixed top-9 right-9 z-50 font-mono">
+        {/* Floating Toggle Button */}
+        {!open && (
+          <div
+            onClick={() => setOpen(true)}
+            className="w-14 h-14 bg-white text-black rounded-xl flex items-center justify-center
+          cursor-pointer transition-all duration-200 hover:bg-slate-800 hover:text-white shadow-lg"
           >
-            {icon}
-            {label}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-};
+            <span className="text-xl font-bold select-none">hb</span>
+          </div>
+        )}
 
-export default FloatingNav;
+        {/* Slide-out Panel */}
+        <div
+          ref={navRef}
+          className={`fixed top-0 right-0 h-screen w-[300px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-in-out
+          ${open ? "translate-x-0" : "translate-x-full"}
+        `}
+        >
+          {/* Close Button */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={() => setOpen(false)}
+              className="text-white p-2 rounded-md hover:bg-[#1a1a1a]"
+              aria-label="Close"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Content */}
+          <nav className="h-[calc(100%-4rem)] flex flex-col justify-between px-4 pb-6 overflow-y-auto">
+            <div className="space-y-6">
+              {/* Header */}
+              <header className="grid items-center gap-3">
+                <div className="bg-white w-fit rounded-lg p-2 text-black font-extrabold text-xl">
+                  hb
+                </div>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-md mt-4 font-extrabold text-gray-300">The HB Blog</span>
+                </div>
+              </header>
+
+              {/* Overview */}
+              <div className="space-y-2 pt-2">
+                <p className="text-xs text-gray-500">OVERVIEW</p>
+                <p
+                  onClick={() => navigate("/")}
+                  role="button"
+                  className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
+                >
+                  <Home size={16} />
+                  Home
+                </p>
+              </div>
+
+              {/* Blog Info */}
+              <div className="space-y-2 pt-4">
+                <p className="text-xs text-gray-500">BLOG INFO</p>
+
+                <p
+                  role="button"
+                  className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
+                >
+                  <User size={16} />
+                  About
+                </p>
+
+                <p
+                  role="button"
+                  onClick={scrollToTarget}
+                  className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
+                >
+                  <BellPlus size={16} />
+                  Subscribe
+                </p>
+
+                <p
+                  onClick={() => navigate("/signup")}
+                  role="button"
+                  className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
+                >
+                  <BookPlus size={16} />
+                  Contribute
+                </p>
+
+                <p
+                  role="button"
+                  onClick={()=>navigate("/search")}
+                  className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
+                >
+                  <Search size={16} />
+                  Search
+                </p>
+              </div>
+            </div>
+
+            {/* Creator Footer */}
+            <div
+              role="button"
+              onClick={() => navigate("/thebigboss")}
+              className="flex items-center gap-3 mt-6 pt-4 border-t border-[hsl(0,0%,30%)]"
+            >
+              <img
+                src="https://via.placeholder.com/36"
+                alt="Henry Bassey"
+                className="w-10 h-10 rounded-full border object-cover"
+              />
+              <div className="leading-tight">
+                <p className="text-xs font-semibold uppercase">Henry Bassey</p>
+                <p className="text-[0.5rem] text-gray-500">Creator</p>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    );
+  };
+
+  export default FloatingNav;

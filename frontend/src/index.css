@@ -18,9 +18,28 @@ body {
   font-family: var(--font-cursive);
 }
 
-h3,
-.roman {
+h3, .roman {
   font-family: "Times New Roman", Times, serif;
+}
+
+/* Custom backdrop blur for better browser support */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@layer utilities {
+  /* .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  } */
+}
+
+*:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
 }
 
 @layer base {
@@ -91,28 +110,30 @@ h3,
 }
 
 /* For modern browsers */
-.custom-scrollbar {
+.custom-scrollbar .new-bar {
   scrollbar-width: thin;
-  scrollbar-color: hsl(0, 0%, 54%) black;
-  border-radius: 6px;
+  scrollbar-color: hsl(0, 1%, 33%) black;
+  border-radius: 0px;
 }
 
 /* For WebKit (Chrome, Edge, Safari) */
 .custom-scrollbar::-webkit-scrollbar {
   scrollbar-width: thin;
-  width: 8px;
-  scrollbar-color: hsl(0, 0%, 54%) black;
-  border-radius: 6px;
+  scroll-padding-top: 2px;
+  width: 12px;
+  scrollbar-color: hsl(0, 4%, 22%) black;
+  border-radius: 0px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: white;
-  border-radius: 6px;
+  background: hsl(0, 2%, 20%);
+  border-radius: 0px;
+  padding-top: 2px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: black;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 @layer utilities {
@@ -147,26 +168,27 @@ h3,
 }
 
 /* override editor colors */
+.ql-editor {
+  max-height: 420px;
+  font-size: medium;
+  overflow-y: auto;
+  color: white;
+  scrollbar-width: thin;
+  scrollbar-color: #8d9b92 transparent; /* green scrollbar */
+}
+
 .ql-container {
-  background-color: transparent !important;
-  color: #e5e7eb !important; /* Tailwind's text-gray-300 */
   border: none !important;
+  background-color: transparent !important;
+  padding-bottom: 2rem;
+  height: 100%;
 }
 
 .ql-toolbar {
-  background-color: #111 !important;
-  border-color: #333 !important;
-  position: sticky;
-  top: 0;
-  background-color: #000; /* match editor bg */
-  z-index: 10;
-  border-bottom: 1px solid #374151; /* gray-700 */
-}
-
-.ql-editor {
-  font-size: 0.75rem;
-  font-family: var(--font-sans);
-  border-bottom: 1px solid gray;
+  background-color: #1f2937; /* Tailwind gray-800 */
+  border: none !important;
+  border-bottom: 1px solid #374151; /* Tailwind gray-700 */
+  border-radius: 0.1rem 0.1rem 0 0;
 }
 
 @keyframes bounce {

@@ -16,11 +16,11 @@ function HeroSection() {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, []); 
 
   return (
-    <section className="bg-[#0f0f0f] min-h-screen py-24 px-5 xs:py-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-[#0f0f0f] min-h-screen py-24 w-full px-4 xs:py-8">
+      <div className="mx-auto">
         {/* Header */}
         {isClient && (
           <div className=" cursive text-5xl font-black text-white mb-12">

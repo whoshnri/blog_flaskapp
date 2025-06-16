@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, HomeIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -28,18 +29,20 @@ export default function LoginForm() {
       };
       const response = await fetch(url, options);
       const results = await response.json();
-      if(results.status == 402){
+      if (results.status == 402) {
         newErrors.password = "Invalid Password"
         setErrors(newErrors)
-          
-      }else if(results.status == 401){
+
+      } else if (results.status == 401) {
         setStep(1)
         newErrors.email = "Invalid Email"
         setErrors(newErrors)
 
       }
-      else if (response.status === 200){
+      else if (response.status === 200) {
         console.log("Successful")
+        localStorage.setItem("token", results.token);
+        navigate(`/dashboard/${results.username}/${results.uuid}`)
       }
     }
   };
@@ -75,10 +78,11 @@ export default function LoginForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const navigate = useNavigate()
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white font-sans z-50">
-      <div className="w-[90%] scale-[90%] md:w-[38rem] bg-gradient-to-br from-black/70 to-black border border-gray-700 p-8 rounded-2xl shadow-2xl space-y-6 overflow-hidden">
+      <div className="w-[90%] scale-[90%] md:w-[38rem] bg-gradient-to-br from-black/70 to-black border border-gray-700 p-8 rounded-2xl shadow-2xl space-y-5 overflow-hidden">
         <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
 
         {/* Step Progress Indicator */}
@@ -86,9 +90,8 @@ export default function LoginForm() {
           {steps.map((s) => (
             <div
               key={s}
-              className={`h-2 w-8 rounded-full ${
-                s <= step ? "bg-green-500" : "bg-gray-700"
-              }`}
+              className={`h-2 w-8 rounded-full ${s <= step ? "bg-green-500" : "bg-gray-700"
+                }`}
             />
           ))}
         </div>
@@ -105,7 +108,7 @@ export default function LoginForm() {
           >
             {/* Step 1 - Email */}
             {step === 1 && (
-              <div>
+              <div className="pb-6">
                 <label className="block text-sm mb-1 text-gray-400">
                   Email
                 </label>
@@ -115,17 +118,17 @@ export default function LoginForm() {
                   value={email}
                   onKeyDown={(e) => e.key === "Enter" && nextStep()}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full bg-black/40 border ${
-                    errors.email ? "border-red-500" : "border-gray-700"
-                  } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                    errors.email
+                  className={`w-full bg-black/40 border ${errors.email ? "border-red-500" : "border-gray-700"
+                    } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${errors.email
                       ? "focus:ring-red-500"
                       : "focus:ring-green-500 focus:border-green-500"
-                  }`}
+                    }`}
                   placeholder="you@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  <p className="text-red-500 text-xs mt-1">{errors.email + ". "}<span
+                    onClick={() => navigate('/signup')} className="hover:underline cursor-pointer"
+                  >Join?</span></p>
                 )}
                 <button
                   role="button"
@@ -149,13 +152,11 @@ export default function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && auth(e)}
-                  className={`w-full bg-black/40 border ${
-                    errors.password ? "border-red-500" : "border-gray-700"
-                  } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                    errors.password
+                  className={`w-full bg-black/40 border ${errors.password ? "border-red-500" : "border-gray-700"
+                    } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${errors.password
                       ? "focus:ring-red-500"
                       : "focus:ring-green-500 focus:border-green-500"
-                  } pr-10`}
+                    } pr-10`}
                   placeholder="••••••••"
                 />
                 {errors.password && (
@@ -185,8 +186,18 @@ export default function LoginForm() {
                 </div>
               </div>
             )}
+
           </motion.div>
+
         </AnimatePresence>
+        <div>
+          <p
+            onClick={() => navigate('/signup')}
+            className="roman text-xs w-fit mx-auto mt-4 text-blue-500 uppercase hover:underline cursor-pointer">new here? join now</p>
+          <HomeIcon
+            onClick={() => navigate('/')}
+            className="roman text-xs mx-auto mt-2 text-gray-100 w-8 h-8 p-1 rounded-lg uppercase bg-gray-800 hover:bg-gray-100 hover:text-gray-950 ease-in-out duration-200 cursor-pointer animate-pulse" />
+        </div>
       </div>
     </div>
   );

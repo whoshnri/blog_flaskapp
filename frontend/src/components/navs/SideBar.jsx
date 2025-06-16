@@ -1,9 +1,12 @@
 import React from "react";
-import { Home, User, Star, BellPlus, Search,BookPlus} from "lucide-react"; // mock icons
+import { Home, User, Star, BellPlus, Search, BookPlus } from "lucide-react"; // mock icons
+import {useNavigate} from "react-router-dom"
 
-const BlogSidebar = ({scrollToTarget, showSearchPage}) => {
+const BlogSidebar = ({ scrollToTarget}) => {
+  const navigate = useNavigate()
+
   return (
-    <nav className="h-[100vh] border-r border-[hsl(0,0%,30%)] overflow-auto bg-[#0f0f0f] text-white px-2 py-6 flex flex-col justify-between">
+    <nav className="h-[100vh] border-r border-[hsl(0,0%,30%)] overflow-y-auto bg-[#0f0f0f] text-white px-2 py-6 flex flex-col justify-between">
       {/* Top Content */}
       <div className="space-y-6">
         {/* Header */}
@@ -12,47 +15,60 @@ const BlogSidebar = ({scrollToTarget, showSearchPage}) => {
             hb
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-md mt-4 font-extrabold text-gray-300">The HB Blog</span>
+            <span className="text-lg mt-4 font-extrabold text-gray-300">The HB Blog</span>
           </div>
         </header>
 
         {/* Overview Section */}
         <div className="space-y-2 pt-2">
-          <p className="text-xs text-gray-500 px-2">OVERVIEW</p>
-          <a href="/" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          <p className="text-sm text-gray-500 px-2">OVERVIEW</p>
+          <p
+            role="button"
+            onClick={() => navigate("/")}
+            href="/" className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <Home size={16} />
             Home
-          </a>
+          </p>
         </div>
 
         {/* Blog Info */}
         <div className="space-y-2 pt-4">
-          <p className="text-xs text-gray-500 px-2">BLOG INFO</p>
-          <a href="/about" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          <p className="text-sm text-gray-500 px-2">BLOG INFO</p>
+          <p
+            role="button"
+            className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <User size={16} />
             About
-          </a>
-          <a
-          onClick={scrollToTarget}
-          href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          </p>
+          <p
+            role="button"
+            onClick={scrollToTarget}
+            className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <BellPlus size={16} />
             Subscribe
-          </a>
-          <a href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          </p>
+          <p
+            role="button"
+            onClick={() => navigate("/signup")}
+            className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <BookPlus size={16} />
             Contribute
-          </a>
-          <a 
-          onClick={showSearchPage}
-          href="/contact" className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
+          </p>
+          <p
+            role="button"
+            onClick={() => navigate("/search")}
+            className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <Search size={16} />
             Search
-          </a>
+          </p>
         </div>
       </div>
 
       {/* Creator Section */}
-      <div className="flex items-center gap-3 px-2 mt-6 pt-4 border-t border-[hsl(0,0%,30%)]">
+      <div
+        role="button"
+        onClick={() => navigate("/thebigboss")}
+        className="flex items-center gap-3 px-2 mt-6 pt-4 border-t border-[hsl(0,0%,30%)]">
         <img
           src="https://via.placeholder.com/36"
           alt="Henry Bassey"

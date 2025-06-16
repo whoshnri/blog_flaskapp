@@ -1,14 +1,11 @@
-// src/App.tsx
-import React from "react"
-import Layout from "./Layout"
+// src/App.jsx
+import { Outlet } from "react-router-dom";
+import "./index.css"
 
-function App() {
+export default function App() {
   return (
-    
-    <>
-    <Layout></Layout>
-    </>
-  )
+    <div>
+      <Outlet />
+    </div>
+  );
 }
-
-export default App

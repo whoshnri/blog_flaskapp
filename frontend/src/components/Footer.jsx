@@ -2,7 +2,7 @@ import {Twitter, Github, Instagram, Linkedin} from 'lucide-react'
 
 function Footer() {
   return (
-    <footer className="bg-[#181818] text-white p-10">
+    <footer className="bg-[#181818] text-white p-10"> 
 
       {/* Social Icons */}
       <div className="flex justify-center scale-[70%] cd:scale-[90%] gap-6 mb-8">

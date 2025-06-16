@@ -1,79 +1,66 @@
-// here i will define the header and also make them show or  not show based on the width of the screen
-import BlogSidebar from "./components/navs/SideBar";
-import MobileNav from "./components/navs/MobileNav";
-import HeroSection from "./components/Hero";
-import { SubscribeSection } from "./components/SubscribeSection";
-import Footer from "./components/Footer";
-import Loader from './components/Loader'
-import SearchPage from "./components/Search";
-import CreateBlogCard from './components/CreateBlog'
-import SignupForm from "./components/Users/SignUp";
-import LoginForm from "./components/Users/Login";
-import FuturisticCard from "./components/BlogBodey"
+"use client"
 
+import { useRef, useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import BlogSidebar from "./components/navs/SideBar"
+import MobileNav from "./components/navs/MobileNav"
+import HeroSection from "./components/Hero"
+import { SubscribeSection } from "./components/SubscribeSection"
+import Footer from "./components/Footer"
+import Loader from "./components/Loader"
+import SignupForm from "./components/Users/SignUp"
+import LoginForm from "./components/Users/Login"
+import Dashboard from "./components/Dashboard/Dashboard"
+import { useNavigate } from "react-router-dom"
 
-import { useRef, useState } from "react";
 const Layout = () => {
-  const [searchPage, setSearchPage] = useState(false);
-  const [showSearchPageLoader, setShowSearchPageLoader] = useState(false)
+  const targetRef = useRef(null)
+  const [show, setShow] = useState(false)
 
   const scrollToTarget = (e) => {
-    e.preventDefault();
-    targetRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    e.preventDefault()
+    targetRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
 
-  const showSearchPage = (e) => {
-    e.preventDefault();
+  const showSearch = (e) => {
+    e.preventDefault()
     setShowSearchPageLoader(true)
-    setSearchPage(!searchPage);
-  };
+    setSearchPage(true)
+  }
 
-  
-  const targetRef = useRef(null);
+  useEffect(() => {
+    setShow(true)
+  }, [])
+
   return (
+    <AnimatePresence mode="wait">
+      {show && (
+        <motion.div
+          key="layout"
+          initial={{ opacity: .7 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex"
+        >
+          <div className="max-w-[30%]">
+            <div className="hidden cd:block cd:min-w-[240px]">
+              <BlogSidebar scrollToTarget={scrollToTarget} />
+            </div>
+            <div className="block cd:hidden">
+              <MobileNav scrollToTarget={scrollToTarget} />
+            </div>
+          </div>
 
-      <> 
-      </>
+          <div className="h-[100vh] w-full custom-scrollbar overflow-auto">
+            <HeroSection />
+            <SubscribeSection targetRef={targetRef} />
+            <Footer />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
-
-    // <>
-    //   <div className="flex">
-    //     <div className="">
-    //       <div className="hidden xs:block ">
-    //         <BlogSidebar
-    //           scrollToTarget={scrollToTarget}
-    //           showSearchPage={showSearchPage}
-    //         />
-    //       </div>
-    //       <div className="block xs:hidden">
-    //         <MobileNav />
-    //       </div>
-    //     </div>
-
-    //     {searchPage ? (
-    //       <div className={`h-[100vh]  bg-black relative w-full custom-scrollbar  overflow-auto ${!showSearchPageLoader ? 'overflow-hidden' : ''}`}>
-    //         {" "}
-    //        <SearchPage></SearchPage>
-    //        <div className="mt-7"></div>
-    //        <Footer></Footer>
-    //         {/* {showSearchPageLoader && (<Loader></Loader>)} */}
-    //        {" "}
-    //       </div>
-    //     ) : (
-    //       <div className="h-[100vh] w-full custom-scrollbar  overflow-auto">
-    //         {" "}
-    //         <HeroSection></HeroSection>
-    //         <SubscribeSection targetRef={targetRef}></SubscribeSection>
-    //         <Footer></Footer>{" "}
-    //       </div>
-    //     )}
-    //   </div>
-
-    //   {/* <CreateBlogCard></CreateBlogCard> */}
-    // </>
-  );
-};
-
-
-
-export default Layout;
+export default Layout

@@ -9,7 +9,6 @@ export function SubscribeSection({targetRef}) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
     setEmail("")
   }
 

@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, HomeIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showCPassword, setShowCPassword] = useState(false);
   const [step, setStep] = useState(1);
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -102,14 +104,14 @@ export default function SignupForm() {
     data.username = formData.username;
     data.email = formData.email;
     data.password = formData.confirmPassword;
-    if (formData.image){
+    if (formData.image) {
       data.pfp = formData.image;
       console.log(data);
-      const url = "http://127.0.0.1:5000/add/user";
-    const options = {
-      method: "POST",
-      body: JSON.stringify(data),
-    };
+      const url = "http://127.0.0.1:5000/new/user";
+      const options = {
+        method: "POST",
+        body: JSON.stringify(data),
+      };
       const response = await fetch(url, options);
       const res = await response.json();
 
@@ -120,7 +122,7 @@ export default function SignupForm() {
       }
     }
     console.log(data);
-    const url = "http://127.0.0.1:5000/add/user";
+    const url = "http://127.0.0.1:5000/new/user";
     const options = {
       method: "POST",
       headers: {
@@ -136,15 +138,15 @@ export default function SignupForm() {
     } else {
       console.log(res.message);
     }
-    // setFormData({
-    //   username: "",
-    //   email: "",
-    //   password: "",
-    //   confirmPassword: "",
-    //   acceptedTerms: false,
-    //   image: null, // <-- add this
-    // });
-    setPreview(null);
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      acceptedTerms: false,
+      image: null, // <-- add this
+    });
+    navigate("/login")
   };
 
   const checkusername = async () => {
@@ -225,15 +227,13 @@ export default function SignupForm() {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white sans z-50">
       <div className="w-[90%] md:w-[38rem] bg-gradient-to-br from-black via-black/90 to-black/80 border border-gray-700 p-8 rounded-2xl shadow-2xl space-y-6 overflow-hidden">
-        <h2 className="text-2xl font-bold text-center mb-2">Sign Up</h2>
-
+        <h2 className="text-2xl font-bold text-center ">Sign Up</h2>
         <div className="flex justify-center space-x-2 mb-4">
           {steps.map((s) => (
             <div
               key={s}
-              className={`h-2 w-8 rounded-full ${
-                s <= step ? "bg-green-500" : "bg-gray-700"
-              }`}
+              className={`h-2 w-8 rounded-full ${s <= step ? "bg-green-500" : "bg-gray-700"
+                }`}
             />
           ))}
         </div>
@@ -262,14 +262,20 @@ export default function SignupForm() {
                   className="w-full px-3 py-2 bg-black/40 border border-gray-700 rounded-md focus:outline-none focus:ring focus:ring-gray-600"
                 />
                 {apiError && (
-                  <p className="text-red-500 text-sm mt-2">{apiError}</p>
+                   <p
+                    className="text-red-500 text-sm mt-1">{apiError + " "}<span
+                      onClick={() => navigate('/login')} className="hover:underline cursor-pointer"
+                    >Login?</span></p>
                 )}
 
                 {loading && (
                   <p className="text-gray-400 text-sm mt-2">Processing...</p>
                 )}
                 {errors.username && (
-                  <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+                  <p
+                    className="text-red-500 text-sm mt-1">{errors.username + ". "}<span
+                      onClick={() => navigate('/login')} className="hover:underline cursor-pointer"
+                    >Login?</span></p>
                 )}
                 <div className="flex justify-end mt-4">
                   <button
@@ -298,10 +304,16 @@ export default function SignupForm() {
                   className="w-full px-3 py-2 bg-black/40 border border-gray-700 rounded-md focus:outline-none focus:ring focus:ring-gray-600"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  <p
+                    className="text-red-500 text-sm mt-1">{errors.email + " "}<span
+                      onClick={() => navigate('/login')} className="hover:underline cursor-pointer"
+                    >Login?</span></p>
                 )}
                 {apiError && (
-                  <p className="text-red-500 text-sm mt-2">{apiError}</p>
+                  <p
+                    className="text-red-500 text-sm mt-1">{apiError + ". "}<span
+                      onClick={() => navigate('/login')} className="hover:underline cursor-pointer"
+                    >Login?</span></p>
                 )}
 
                 {loading && (
@@ -348,13 +360,12 @@ export default function SignupForm() {
                 <p className="text-sm mb-2 text-gray-400">
                   Strength:{" "}
                   <span
-                    className={`font-bold ${
-                      getPasswordStrength() === "Strong"
-                        ? "text-green-400"
-                        : getPasswordStrength() === "Moderate"
+                    className={`font-bold ${getPasswordStrength() === "Strong"
+                      ? "text-green-400"
+                      : getPasswordStrength() === "Moderate"
                         ? "text-yellow-400"
                         : "text-red-400"
-                    }`}
+                      }`}
                   >
                     {getPasswordStrength()}
                   </span>
@@ -522,6 +533,12 @@ export default function SignupForm() {
                 </div>
               </div>
             )}
+            <p
+              onClick={() => navigate('/login')}
+              className="roman text-xs w-fit mx-auto text-blue-500 uppercase hover:underline cursor-pointer">already joined? login</p>
+              <HomeIcon
+              onClick={() => navigate('/')}
+              className="roman text-xs mx-auto text-gray-100 mt-2 w-8 h-8 p-1 rounded-lg uppercase bg-gray-800 hover:bg-gray-100 hover:text-gray-950 ease-in-out duration-200 cursor-pointer animate-pulse"/>
           </motion.div>
         </AnimatePresence>
       </div>
