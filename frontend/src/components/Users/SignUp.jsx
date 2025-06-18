@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, HomeIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import image1 from "./signup.jpg"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -99,61 +101,71 @@ export default function SignupForm() {
 
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = {};
-    data.username = formData.username;
-    data.email = formData.email;
-    data.password = formData.confirmPassword;
-    if (formData.image) {
-      data.pfp = formData.image;
-      console.log(data);
-      const url = "http://127.0.0.1:5000/new/user";
-      const options = {
-        method: "POST",
-        body: JSON.stringify(data),
-      };
-      const response = await fetch(url, options);
-      const res = await response.json();
+ const handleSubmit = async (e) => {
+  e?.preventDefault(); // optional since sometimes you don't pass event
 
-      if (response.status === 200 || response.status === 201) {
-        console.log(data.message);
-      } else {
-        console.error(data.message);
-      }
+  setLoading(true);
+  setApiError("");
+
+  try {
+    let url = `${API}/new/user`;
+    let options;
+
+    if (formData.image) {
+      const form = new FormData();
+      form.append("username", formData.username);
+      form.append("email", formData.email);
+      form.append("password", formData.confirmPassword);
+      form.append("pfp", formData.image);
+
+      options = {
+        method: "POST",
+        body: form,
+      };
+    } else {
+      options = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.confirmPassword,
+        }),
+      };
     }
-    console.log(data);
-    const url = "http://127.0.0.1:5000/new/user";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
+
     const response = await fetch(url, options);
     const res = await response.json();
 
-    if (res.status === 200 || res.status === 201) {
-      console.log(res.message);
+    if (response.ok) {
+      console.log(res.message || "Success");
+      navigate("/login");
     } else {
-      console.log(res.message);
+      console.error(res.message || "Registration failed");
+      setApiError(res.message || "Registration failed");
     }
+  } catch (err) {
+    console.error(err);
+    setApiError("Something went wrong. Try again.");
+  } finally {
+    setLoading(false);
     setFormData({
       username: "",
       email: "",
       password: "",
       confirmPassword: "",
       acceptedTerms: false,
-      image: null, // <-- add this
+      image: null,
     });
-    navigate("/login")
-  };
+    setPreview(null);
+  }
+};
+
 
   const checkusername = async () => {
     setApiError(null);
     console.log(formData.username);
-    const url = "http://127.0.0.1:5000/check";
+    const url = `${API}/check`;
     const options = {
       method: "POST",
       headers: {
@@ -177,7 +189,7 @@ export default function SignupForm() {
   const checkemail = async () => {
     setApiError(null);
     console.log(formData.email);
-    const url = "http://127.0.0.1:5000/check";
+    const url = `${API}/check`;
     const options = {
       method: "POST",
       headers: {

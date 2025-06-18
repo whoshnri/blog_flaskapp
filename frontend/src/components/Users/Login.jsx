@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, ArrowLeft, HomeIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import loginIcon from "./Login-bro.svg"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -53,7 +55,7 @@ export default function LoginForm() {
 
     if (validate()) {
       const data = { email, password };
-      const response = await fetch("http://127.0.0.1:5000/get/user", {
+      const response = await fetch(`${API}/get/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
