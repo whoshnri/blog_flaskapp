@@ -13,11 +13,14 @@ import re
 #import the module to calculate time ago or assign it directly
 from flask import Flask, send_from_directory
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 
 
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 0
 app.config["JWT_SECRET_KEY"] = "@as5XIUdc"
