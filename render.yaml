@@ -6,6 +6,6 @@ services:
     buildCommand: |
       cd frontend && npm install && npm run build
       cd ../backend && pip install -r requirements.txt
-    startCommand: gunicorn routes:app
+    startCommand: gunicorn app:app
     autoDeploy: true
 
