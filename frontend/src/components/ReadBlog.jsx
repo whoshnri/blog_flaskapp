@@ -4,10 +4,11 @@ import { useNavigate , useParams} from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import BlogSidebar from "./navs/SideBar"
 import MobileNav from "./navs/MobileNav"
-
+import { useRef } from "react"
 
 const ReadBlog = ({ scrollToTarget }) => {
   const {pid} = useParams()
+  const scrollRef = useRef(null)
   const containerVariants = {
     hidden: { opacity: 0, x: 50 },
     visible: {
@@ -26,6 +27,7 @@ const ReadBlog = ({ scrollToTarget }) => {
     <div className="flex">
 
       <motion.div
+      ref={scrollRef} 
         key="blogView"
         className="h-[100vh] w-full custom-scrollbar overflow-auto"
         variants={containerVariants}
@@ -33,7 +35,7 @@ const ReadBlog = ({ scrollToTarget }) => {
         animate="visible"
         exit="exit"
       >
-        <FuturisticCard pid={pid} />
+        <FuturisticCard pid={pid} scrollRef={scrollRef} />
       </motion.div>
     </div>
 

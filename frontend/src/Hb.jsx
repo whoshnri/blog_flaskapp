@@ -1,4 +1,4 @@
-import { Github, Mail, ArrowLeft, Code2, Zap, Shield , Instagram, Twitter} from "lucide-react";
+import { Github, Mail, ArrowLeft, Code2, Zap, Shield , Instagram, Twitter, Briefcase, GraduationCap, Mic, Mic2, Brain, Bot, MapPin} from "lucide-react";
 import {useNavigate} from "react-router-dom"
 
 const Hb = () => {
@@ -26,6 +26,7 @@ const Hb = () => {
             <div>
               <h1 className="text-3xl font-bold text-white mb-1">Henry Bassey</h1>
               <p className="text-blue-400 font-medium">Full-Stack Developer & Creator</p>
+              <span className=" flex gap-3 items-center mt-1 text-slate-300 text-xs"><MapPin className="w-4 h-4"/> Nigeria</span>
             </div>
           </div>
 
@@ -53,12 +54,27 @@ const Hb = () => {
             <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 text-center">
               <Shield className="w-8 h-8 text-blue-400 mx-auto mb-2" />
               <h3 className="text-white font-semibold mb-1">Security Focus</h3>
-              <p className="text-slate-400 text-sm">Ethical hacking & secure application design</p>
+              <p className="text-slate-400 text-sm">Secure application design</p>
             </div>
             <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 text-center">
               <Zap className="w-8 h-8 text-blue-400 mx-auto mb-2" />
               <h3 className="text-white font-semibold mb-1">Innovation</h3>
               <p className="text-slate-400 text-sm">UI/UX design & automation solutions</p>
+            </div>
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 text-center">
+              <Bot className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <h3 className="text-white font-semibold mb-1">Leveraging AI</h3>
+              <p className="text-slate-400 text-sm">Using AI to stay at the forefront of modern development</p>
+            </div>
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 text-center">
+              <GraduationCap className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <h3 className="text-white font-semibold mb-1">Learning</h3>
+              <p className="text-slate-400 text-sm">Born '07, Henry has time to develop and grow</p>
+            </div>
+            <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4 text-center">
+              <Mic2 className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <h3 className="text-white font-semibold mb-1">Story Telling</h3>
+              <p className="text-slate-400 text-sm">Passionate about sharing life experiences with poeple.</p>
             </div>
           </div>
 
@@ -81,13 +97,26 @@ const Hb = () => {
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 bg-slate-700/40 hover:bg-slate-600/60 border border-slate-600/50 hover:border-slate-500 rounded-lg px-4 py-3 transition-all duration-300"
               >
+                <Briefcase className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
+                <span className="text-slate-300 group-hover:text-white font-medium transition-colors">
+                  hb.me :)
+                </span>
+              </a>
+              <a
+                href="https://hb.me"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 bg-blue-900/40 hover:bg-blue-800/60 border border-slate-600/50 hover:border-slate-500 rounded-lg px-4 py-3 transition-all duration-300"
+              >
                 <Github className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
                 <span className="text-slate-300 group-hover:text-white font-medium transition-colors">
-                  View on GitHub
+                  My GitHub
                 </span>
               </a>
               <a
                 href="https://instagram.com/xyz_07hb"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group flex items-center gap-3 bg-blue-900/40 hover:bg-blue-800/60 border border-blue-700/50 hover:border-blue-600 rounded-lg px-4 py-3 transition-all duration-300"
               >
                 <Instagram className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
@@ -97,6 +126,8 @@ const Hb = () => {
               </a>
               <a
                 href="https://x.com/xyz_07hb"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group flex items-center gap-3 bg-blue-900/40 hover:bg-blue-800/60 border border-blue-700/50 hover:border-blue-600 rounded-lg px-4 py-3 transition-all duration-300"
               >
                 <Twitter className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />

@@ -17,7 +17,7 @@ export default function HeaderSidebar({user}) {
       transition={{ duration: 0.6 }}
     >
       <div
-        className="relative flex flex-col cd:w-[280px] overflow-hidden cd:h-screen rounded-lg cd:rounded-none cd:fixed top-0 left-0 p-6 scale-[0.95] cd:scale-100 cd:pt-12 transition-transform duration-300 ease-in-out"
+        className="relative flex flex-col cd:w-[280px] overflow-hidden cd:h-screen rounded-lg cd:rounded-none cd:fixed top-0 left-0 p-6 cd:p-2 scale-[0.95] cd:scale-100 cd:pt-4 transition-transform duration-300 ease-in-out"
 
         style={{
           backgroundImage: `url(${bgpixel})`,
@@ -49,9 +49,9 @@ export default function HeaderSidebar({user}) {
           transition={{ delay: 0.2 }}
           className="mt-4 text-center text-white z-10"
         >
-          <h1 className="text-2xl font-bold">Welcome back, {user.username}</h1>
-          <span className="block text-sm my-1 text-gray-300 roman font-bold">{user.email}</span>
-          <div className="flex justify-center gap-5 mt-2">
+          <h1 className="text-2xl cd:text-lg font-bold">Hi, {user.username}</h1>
+          <span className="block text-sm my-1 text-gray-300 cd:text-xs roman font-bold">{user.email}</span>
+          <div className="flex justify-center gap-5 mt-2 cd:mt-4">
             <BellIcon
               role='button'
               className="w-5 h-5 hover:text-yellow-400 transition" />
@@ -61,19 +61,18 @@ export default function HeaderSidebar({user}) {
             <LogOut
               onClick={() =>  navigate("/logout")}
               role='button'
-              className="w-5 h-5 cd:hidden hover:text-blue-400 transition" />
+              className="w-5 h-5 cd:hidden hover:text-red-600 transition" />
           </div>
         </motion.div>
 
         {/* Stats */}
         <motion.div
-          className="mt-3 grid grid-cols-3 gap-2 border-gray-800 border-t pt-4 w-fit mx-auto text-center text-sm text-white z-10"
+          className="mt-3 grid grid-cols-2 gap-6 border-gray-800 border-t pt-4 w-fit mx-auto text-center text-sm text-white z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
           {[
-            { label: "Followers", value: user.followers },
             { label: "Blogs", value: user.post_count },
             { label: "Likes", value: user.like_count},
           ].map(({ label, value }, idx) => (
@@ -93,8 +92,6 @@ export default function HeaderSidebar({user}) {
         >
           {[
             { label: "Logout", icon: LogOut, showOnMobile: false },
-            { label: "Bio", icon: User2Icon, showOnMobile: true },
-            { label: "Share", icon: Share2, showOnMobile: true },
             { label: "Create", icon: PencilIcon, showOnMobile: true },
           ].map(({ label, icon: Icon, showOnMobile }, idx) => (
             <div
@@ -103,7 +100,7 @@ export default function HeaderSidebar({user}) {
               onClick={() => {
                 if(label == 'Create'){
                   navigate(`/new/${user.username}/${user.uuid}`)
-                }else if(label == "LogOut"){
+                }else if(label == "Logout"){
                   navigate("/logout");
                 }
               }}
@@ -117,7 +114,6 @@ export default function HeaderSidebar({user}) {
               <span>{label}</span>
             </div>
           ))}
-          <div className='opacity-0 cd:opacity-100 absolute bottom-0 right-0 left-0 text-center'>Made with 💖 by Henry</div>
         </motion.div>
 
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, ArrowLeft, HomeIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import loginIcon from "./Login-bro.svg"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -10,47 +11,11 @@ export default function LoginForm() {
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
   const inputRef = useRef(null);
-
-  const auth = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    if (validate()) {
-      const data = {
-        email: email,
-        password: password,
-      };
-      const url = "http://127.0.0.1:5000/get/user";
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      };
-      const response = await fetch(url, options);
-      const results = await response.json();
-      if (results.status == 402) {
-        newErrors.password = "Invalid Password"
-        setErrors(newErrors)
-
-      } else if (results.status == 401) {
-        setStep(1)
-        newErrors.email = "Invalid Email"
-        setErrors(newErrors)
-
-      }
-      else if (response.status === 200) {
-        console.log("Successful")
-        localStorage.setItem("token", results.token);
-        navigate(`/dashboard/${results.username}/${results.uuid}`)
-      }
-    }
-  };
+  const navigate = useNavigate();
 
   const steps = [1, 2];
 
   useEffect(() => {
-    // Auto-focus current step input
     inputRef.current?.focus();
   }, [step]);
 
@@ -59,9 +24,11 @@ export default function LoginForm() {
   };
 
   const prevStep = () => setStep(step - 1);
+
   const validate = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (step === 1) {
       if (!email.trim()) {
         newErrors.email = "Email is required.";
@@ -75,14 +42,63 @@ export default function LoginForm() {
         newErrors.password = "Password is required.";
       }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const navigate = useNavigate()
+
+  const auth = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (validate()) {
+      const data = { email, password };
+      const response = await fetch("http://127.0.0.1:5000/get/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const results = await response.json();
+
+      if (results.status === 402) {
+        newErrors.password = "Invalid Password";
+        setErrors(newErrors);
+      } else if (results.status === 401) {
+        setStep(1);
+        newErrors.email = "Invalid Email";
+        setErrors(newErrors);
+      } else if (response.status === 200) {
+        localStorage.setItem("token", results.token);
+        navigate(`/dashboard/${results.username}/${results.uuid}`);
+      }
+    }
+  };
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+  const checkRatio = () => {
+    const { innerHeight: h, innerWidth: w } = window;
+    const result = w > h;
+    setShow(result);
+  };
+  checkRatio()
+  window.addEventListener("resize", checkRatio);
+  return () => window.removeEventListener("resize", checkRatio);
+}, []);
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white font-sans z-50">
-      <div className="w-[90%] scale-[90%] md:w-[38rem] bg-gradient-to-br from-black/70 to-black border border-gray-700 p-8 rounded-2xl shadow-2xl space-y-5 overflow-hidden">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white sans z-50">
+    <div className="flex w-[90%] h-[70%]">
+      <div className={`relative cd:w-[50%] h-full hidden cd:block ${show ? "" : "cd:hidden"}`}>
+  <img
+    src={loginIcon}
+    className="w-full h-full object-cover"
+  />
+  <div className="absolute inset-0 bg-black/10 z-10"></div>
+</div>
+
+      <div className={`w-full ${show ? "cd:w-[50%]" : "cd:w-full"}  bg-gradient-to-br from-black via-black/90 to-black/80 border border-gray-700 p-8 cd:rounded-none rounded-2xl shadow-2xl space-y-6 overflow-hidden`}>
         <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
 
         {/* Step Progress Indicator */}
@@ -90,13 +106,14 @@ export default function LoginForm() {
           {steps.map((s) => (
             <div
               key={s}
-              className={`h-2 w-8 rounded-full ${s <= step ? "bg-green-500" : "bg-gray-700"
-                }`}
+              className={`h-2 w-8 rounded-full ${
+                s <= step ? "bg-green-500" : "bg-gray-700"
+              }`}
             />
           ))}
         </div>
 
-        {/* Step Transitions */}
+        {/* Step Content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -106,41 +123,45 @@ export default function LoginForm() {
             transition={{ duration: 0.4 }}
             className="w-full"
           >
-            {/* Step 1 - Email */}
             {step === 1 && (
               <div className="pb-6">
-                <label className="block text-sm mb-1 text-gray-400">
-                  Email
-                </label>
+                <label className="block text-sm mb-1 text-gray-400">Email</label>
                 <input
                   type="email"
                   ref={inputRef}
                   value={email}
                   onKeyDown={(e) => e.key === "Enter" && nextStep()}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full bg-black/40 border ${errors.email ? "border-red-500" : "border-gray-700"
-                    } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${errors.email
+                  className={`w-full bg-black/40 border ${
+                    errors.email ? "border-red-500" : "border-gray-700"
+                  } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                    errors.email
                       ? "focus:ring-red-500"
                       : "focus:ring-green-500 focus:border-green-500"
-                    }`}
+                  }`}
                   placeholder="you@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email + ". "}<span
-                    onClick={() => navigate('/signup')} className="hover:underline cursor-pointer"
-                  >Join?</span></p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email + ". "}
+                    <span
+                      onClick={() => navigate("/signup")}
+                      className="hover:underline cursor-pointer"
+                    >
+                      Join?
+                    </span>
+                  </p>
                 )}
                 <button
                   role="button"
                   onClick={nextStep}
-                  className="w-16 h-8 mt-2 float-right bg-green-600 hover:bg-green-700 text-white rounded-md font-bold uppercase tracking-wide"
+                  className="w-20 h-9 mt-3 float-right bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] rounded-md text-sm font-semibold"
                 >
                   Next
                 </button>
               </div>
             )}
 
-            {/* Step 2 - Password */}
             {step === 2 && (
               <div className="relative">
                 <label className="block text-sm mb-1 text-gray-400">
@@ -152,17 +173,18 @@ export default function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && auth(e)}
-                  className={`w-full bg-black/40 border ${errors.password ? "border-red-500" : "border-gray-700"
-                    } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${errors.password
+                  className={`w-full bg-black/40 border ${
+                    errors.password ? "border-red-500" : "border-gray-700"
+                  } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                    errors.password
                       ? "focus:ring-red-500"
                       : "focus:ring-green-500 focus:border-green-500"
-                    } pr-10`}
+                  } pr-10`}
                   placeholder="••••••••"
                 />
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">{errors.password}</p>
                 )}
-
                 <div
                   className="absolute right-3 top-[2.1rem] cursor-pointer text-gray-400"
                   onClick={() => setShowPassword(!showPassword)}
@@ -170,34 +192,41 @@ export default function LoginForm() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </div>
 
-                <div className="flex justify-between">
+                <div className="flex justify-between mt-4">
                   <ArrowLeft
                     role="button"
                     onClick={prevStep}
-                    className="w-16 h-8 mt-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-bold uppercase tracking-wide"
+                    className="w-9 h-9 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-md p-1 transition-all duration-200 ease-in-out shadow-md hover:scale-105"
                   />
                   <button
                     type="submit"
                     onClick={auth}
-                    className="w-fit mt-2 bg-green-600 hover:bg-green-700 text-white py-[.3rem] px-4 rounded-md font-bold uppercase tracking-wide"
+                    className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] px-5 py-2 rounded-md text-sm font-semibold"
                   >
                     Login
                   </button>
                 </div>
               </div>
             )}
-
+            <div className="flex mt-6 gap-2 items-center">
+          <p
+            onClick={() => navigate("/signup")}
+            className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
+          >
+            New here? <span className="font-medium">Join now</span>
+          </p>
+          <p
+            onClick={() => navigate("/")}
+            className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
+          >Take me home</p>
+        </div>
           </motion.div>
 
         </AnimatePresence>
-        <div>
-          <p
-            onClick={() => navigate('/signup')}
-            className="roman text-xs w-fit mx-auto mt-4 text-blue-500 uppercase hover:underline cursor-pointer">new here? join now</p>
-          <HomeIcon
-            onClick={() => navigate('/')}
-            className="roman text-xs mx-auto mt-2 text-gray-100 w-8 h-8 p-1 rounded-lg uppercase bg-gray-800 hover:bg-gray-100 hover:text-gray-950 ease-in-out duration-200 cursor-pointer animate-pulse" />
-        </div>
+
+        {/* Navigation Links */}
+      </div>
+
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ h3, .roman {
   font-family: "Times New Roman", Times, serif;
 }
 
+
 /* Custom backdrop blur for better browser support */
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);

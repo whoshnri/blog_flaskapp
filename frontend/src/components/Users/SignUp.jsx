@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, HomeIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import image1 from "./signup.jpg"
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -222,11 +223,37 @@ export default function SignupForm() {
     }
   };
 
+
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+  const checkRatio = () => {
+    const { innerHeight: h, innerWidth: w } = window;
+    const result = w > h;
+    setShow(result);
+  };
+  checkRatio()
+  window.addEventListener("resize", checkRatio);
+  return () => window.removeEventListener("resize", checkRatio);
+}, []);
+
+
   const steps = [1, 2, 3, 4, 5];
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white sans z-50">
-      <div className="w-[90%] md:w-[38rem] bg-gradient-to-br from-black via-black/90 to-black/80 border border-gray-700 p-8 rounded-2xl shadow-2xl space-y-6 overflow-hidden">
+      <div className="flex w-[90%] h-[70%]">
+      <div
+      className={`relative h-full hidden cd:block ${show ? "cd:w-[50%] " : "cd:hidden"}`}
+>
+      <img
+            src={image1}
+            className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/10"
+></div>
+      </div>
+      <div className={`w-full ${show ? "cd:w-[50%]" : "cd:w-full"}  bg-gradient-to-br from-black via-black/90 to-black/80 border border-gray-700 p-8 cd:rounded-none rounded-2xl shadow-2xl space-y-6 overflow-hidden`}>
         <h2 className="text-2xl font-bold text-center ">Sign Up</h2>
         <div className="flex justify-center space-x-2 mb-4">
           {steps.map((s) => (
@@ -533,14 +560,22 @@ export default function SignupForm() {
                 </div>
               </div>
             )}
-            <p
-              onClick={() => navigate('/login')}
-              className="roman text-xs w-fit mx-auto text-blue-500 uppercase hover:underline cursor-pointer">already joined? login</p>
-              <HomeIcon
-              onClick={() => navigate('/')}
-              className="roman text-xs mx-auto text-gray-100 mt-2 w-8 h-8 p-1 rounded-lg uppercase bg-gray-800 hover:bg-gray-100 hover:text-gray-950 ease-in-out duration-200 cursor-pointer animate-pulse"/>
+            {/* Navigation Links */}
+        <div className="flex mt-6 gap-2 items-center">
+          <p
+            onClick={() => navigate("/login")}
+            className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
+          >
+            Already a member? <span className="font-medium">Login</span>
+          </p>
+          <p
+            onClick={() => navigate("/")}
+            className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
+          >Take me home</p>
+        </div>
           </motion.div>
         </AnimatePresence>
+      </div>
       </div>
     </div>
   );

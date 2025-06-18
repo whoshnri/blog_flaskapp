@@ -5,16 +5,19 @@ import {
   Route,
   redirect
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import App from "./App";
 import Layout from "./Layout";
-import Dashboard from "./components/Dashboard/Dashboard";
-import { SearchPage } from "./components/SearchPage";
-import ErrorPage from "./ErrorPage";
-import Hb from "./Hb";
-import ReadBlog from "./components/ReadBlog";
-import NewBlog from "./components/NewBlog";
-import LoginForm from "./components/Users/Login";
-import SignupForm from "./components/Users/SignUp";
+const Dashboard = lazy(() => import("./components/Dashboard/Dashboard"))
+const SearchPage = lazy(() => import("./components/SearchPage"))
+const ErrorPage = lazy(() => import("./ErrorPage"))
+const Hb = lazy(() => import("./Hb"))
+const ReadBlog = lazy(() => import("./components/ReadBlog"))
+const NewBlog = lazy(() => import("./components/NewBlog"))
+const LoginForm = lazy(() => import("./components/Users/Login"))
+const SignupForm = lazy(() => import("./components/Users/SignUp"))
+import Loader from "./components/Loader";
+
 
 // 👇 Logs out user by calling backend and redirecting to homepage
 const logoutLoader = async () => {
@@ -63,20 +66,29 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} errorElement={<ErrorPage />}>
       <Route index element={<Layout />} />
+
       <Route
         path="dashboard/:userName/:uuid"
-        element={<Dashboard />}
+        element={<Suspense fallback={<Loader />}><Dashboard />
+        </Suspense>}
         loader={validateUUID}
         errorElement={<ErrorPage />}
       />
-      <Route path="search" element={<SearchPage />} />
-      <Route path="read/:pid" element={<ReadBlog />} />
-      <Route path="new/:username/:uuid" element={<NewBlog />} />
-      <Route path="login" element={<LoginForm />} />
-      <Route path="signup" element={<SignupForm />} />
+
+      <Route path="search" element={<Suspense fallback={<Loader />}><SearchPage />
+        </Suspense>} />
+      <Route path="read/:pid" element={<Suspense fallback={<Loader />}><ReadBlog />
+        </Suspense>} />
+      <Route path="new/:username/:uuid" element={<Suspense fallback={<Loader />}><NewBlog />
+        </Suspense>} />
+      <Route path="login" element={<Suspense fallback={<Loader />}><LoginForm />
+        </Suspense>} />
+      <Route path="signup" element={<Suspense fallback={<Loader />}><SignupForm />
+        </Suspense>} />
       <Route path="logout" loader={logoutLoader} />
       <Route path="404" element={<ErrorPage />} />
-      <Route path="thebigboss" element={<Hb />} />
+      <Route path="thebigboss" element={<Suspense fallback={<Loader />}><Hb />
+        </Suspense>} />
     </Route>
   )
 );

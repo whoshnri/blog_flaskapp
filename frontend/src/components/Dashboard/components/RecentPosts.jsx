@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Eye, Heart, Clock, ArrowRight, PencilIcon, BookOpen } from "lucide-react"
 import { useState , useEffect} from "react"
 import { useNavigate } from "react-router-dom"
+import NotFound from "../../../assets/notfound.svg"
 
 
 
@@ -28,21 +29,15 @@ function PostSkeleton() {
   )
 }
 
-export default function RecentPosts({username}) {
+export default function RecentPosts({username, uuid}) {
   const [loading, setLoading] = useState(true)
-  const [opacity, setOpacity] = useState({
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-  })
+  const [noBlogs, setNoBlogs] = useState(false)
 const [posts, setPosts] = useState([])
 const parse = (html) => <span dangerouslySetInnerHTML={{ __html: html }} />;
 
 
 useEffect(() => {
+  setLoading(true)
   const getPosts = async () => {
     const url = `http://127.0.0.1:5000/get/blog/username/${username}`
     try {
@@ -50,9 +45,13 @@ useEffect(() => {
       const res = await response.json()
       if (response.status === 201) {
         console.log(res)
+        setLoading(false)
+        setNoBlogs(false)
         setPosts(res)
       } else {
         console.warn("Fetch failed:", res)
+        setLoading(false)
+        setNoBlogs(true)
       }
     } catch (err) {
       console.error("Network error:", err)
@@ -60,28 +59,6 @@ useEffect(() => {
   }
   getPosts()
 }, [username])
-
-
-  const handleClick = (index) => {
-    const duplicate = { ...opacity }
-    for (let key in duplicate) {
-      if (index == key) {
-        if (duplicate[key] == 0) {
-          duplicate[key] = 1
-        }
-        else {
-          duplicate[key] = 0
-        }
-      }
-    }
-    setOpacity(duplicate)
-  }
-
-  // Simulate loading
-  useState(() => {
-    const timer = setTimeout(() => setLoading(false), 2000)
-    return () => clearTimeout(timer)
-  })
 
 
   const navigate = useNavigate()
@@ -94,7 +71,7 @@ useEffect(() => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <h2 className="text-xl font-semibold mb-6 text-white">Recent Posts</h2>
+        <h2 className="text-xl font-semibold mb-6 text-white">Posts</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading
@@ -129,7 +106,7 @@ useEffect(() => {
                     </div>
 
                   </div>
-                  <div className="flex text-xs items-center space-x-1 pt-2 text-white">
+                  <div className="flex text-xs items-center space-x-2 pt-2 text-slate-600">
                         <Clock className="w-4 h-4" />
                         <span className="text-xs">{post.created}</span>
                       </div>
@@ -148,6 +125,18 @@ useEffect(() => {
               </motion.article>
             ))}
 
+            {
+              noBlogs &&
+              <div className="mx-auto w-full">
+                <img
+                  src={NotFound}
+                />
+                <button
+    onClick={() => navigate(`/new/${username}/${uuid}`)}
+     className="text-sm roman flex items-center gap-2 w-fit mx-auto mt-3 text-gray-200 border border-white px-1 py-1 rounded-lg animate-pulse cursor-pointer hover:text-green-500 hover:border-green-500 hover:scale-105 "><PencilIcon/></button>
+              </div>
+            }
+
         </div>
         <motion.button
           initial={{ opacity: 0, y: 20 }}
@@ -161,6 +150,7 @@ useEffect(() => {
             className="group-hover:translate-x-3 ease-in-out duration-300"
           ></ArrowRight>
         </motion.button>
+
       </motion.section>
 
     </>

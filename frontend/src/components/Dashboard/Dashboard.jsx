@@ -34,7 +34,7 @@ const itemVariants = {
 
 export default function Dashboard({ }) {
   const navigate = useNavigate()
-  const {userName} = useParams()
+  const {userName , uuid} = useParams()
   const [userData , setUserData] = useState({})
 
 
@@ -67,11 +67,11 @@ export default function Dashboard({ }) {
           exit="exit"
         >
           <motion.div variants={itemVariants}>
-            <AnalyticsPanel />
+            <AnalyticsPanel user={userData} userName={userName}/>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <RecentPosts username={userData.username}
+            <RecentPosts username={userName} uuid={uuid}
             />
           </motion.div>
 

@@ -3,10 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_caching import Cache
+from tools import timestamp
 from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 )
 from datetime import datetime, timezone
+from slugify import slugify
+import re
 #import the module to calculate time ago or assign it directly
 
 
@@ -43,7 +46,6 @@ class User(db.Model):
     email = db.Column(db.String(120), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     pfp = db.Column(db.LargeBinary, nullable=True)
-    followers= db.Column(db.Integer, nullable=False, default=0)
     posts = db.relationship('Blog', backref='user', lazy=True)
     logged = db.Column(db.Boolean, nullable=False, default=False)
 
@@ -55,7 +57,8 @@ class User(db.Model):
 
 
 class Blog(db.Model):
-    pid = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    pid = db.Column(db.String(200))
     title = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(50), db.ForeignKey('user.username'), nullable=False)
     category = db.Column(db.String(50), nullable=False)
@@ -63,6 +66,7 @@ class Blog(db.Model):
     desc = db.Column(db.Text, nullable=False)
     views = db.Column(db.Integer, nullable=False, default=0)
     likes = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, nullable=False)
     posted_on = db.Column(db.String, nullable=False)
 
 
@@ -72,17 +76,29 @@ class Blog(db.Model):
         self.content = content
         self.title = title
         self.posted_on = posted_on
+        self.created_at = datetime.now(timezone.utc)
+        self.pid = slugify(title)
         self.desc = self.generate_description(content)
 
+
     def generate_description(self, content):
-        words = content.split()
-        return " ".join(words[:50]) + "..." if len(words) > 50 else content
+        words = self.content.strip().split()
+        return " ".join(words[:50]) + "..." if len(words) > 50 else " ".join(words[:-1]) + "..."
+
 
 class InteractionTracker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    blog_id = db.Column(db.Integer)
+    blog_pid = db.Column(db.Integer)
     ip_address = db.Column(db.String(100))
+    day = db.Column(db.String, nullable=False)
     interaction_type = db.Column(db.String(10))
+
+
+    def __init__(self, blog_pid,ip_address,interaction_type,):
+        self.blog_pid = blog_pid
+        self.ip_address = ip_address
+        self.interaction_type = interaction_type
+        self.day = timestamp()
 
 class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)

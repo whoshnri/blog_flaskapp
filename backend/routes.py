@@ -1,8 +1,10 @@
 from models import User, Blog, app, db, hash_password, verify_password, cache, InteractionTracker
+from sqlalchemy import func
 from flask import jsonify, request
 from tools import timestamp, time_difference, generate_opaque_id,add_to_sheet
 from datetime import datetime
 from models import create_access_token, get_jwt_identity, jwt_required, TokenBlocklist, get_jwt
+from slugify import slugify
 
 # ────────────────────────────────
 # USERS
@@ -18,8 +20,8 @@ def get_users():
             "email": u.email,
             "displayPhoto": str(u.pfp),
             "uuid" : u.uuid,
-            "followers" : u.followers,
             "post_count" : (len(u.posts)),
+            "view_count" : sum(post.views for post in u.posts),
             "like_count": sum(post.likes for post in u.posts),
             "post_count": len(u.posts)
         } for u in users
@@ -102,8 +104,8 @@ def user(username):
             "email": u.email,
             "displayPhoto": str(u.pfp),
             "uuid" : u.uuid,
-            "followers" : u.followers,
             "post_count" : (len(u.posts)),
+            "view_count" : sum(post.views for post in u.posts),
             "like_count": sum(post.likes for post in u.posts)
 
         }}), 201
@@ -151,8 +153,27 @@ def get_blogs():
         ]), 200
     return jsonify({"message": "No posts found"}), 404
 
+#get recent blogs
+@app.route("/get/blogs/recent", methods=['GET'])
+def get_blogs_recent():
+    blogs = Blog.query.order_by(Blog.created_at.desc()).limit(6).all()
+    if blogs:
+        return jsonify([
+            {
+                "pid": b.pid,
+                "author": b.author,
+                "title": b.title,
+                "category": b.category,
+                "desc": b.desc,
+                "created": b.posted_on,
+                "likes": b.likes,
+                "views": b.views
+            } for b in blogs
+        ]), 200
+    return jsonify({"message": "No posts found"}), 404
+
 # Get a single blog by ID
-@app.route("/get/blog/<int:id>", methods=['GET'])
+@app.route("/get/blog/<string:id>", methods=['GET'])
 def get_blog(id):
     blog = Blog.query.filter_by(pid=id).first()
     if blog:
@@ -220,10 +241,10 @@ def add_blog():
 # ────────────────────────────────
 
 # Add a like to a blog post
-@app.route("/add/likes/<int:id>", methods=['PATCH'])
+@app.route("/add/likes/<string:id>", methods=['PATCH'])
 def add_likes(id):
     ip = request.remote_addr
-    if InteractionTracker.query.filter_by(blog_id=id, ip_address=ip, interaction_type='like').first():
+    if InteractionTracker.query.filter_by(blog_pid=id, ip_address=ip, interaction_type='like').first():
         return jsonify({"message": "Already liked", "status": 403}), 403
 
     blog = Blog.query.filter_by(pid=id).first()
@@ -231,32 +252,50 @@ def add_likes(id):
         return jsonify({"message": "Blog not found", "status": 404}), 404
 
     blog.likes += 1
-    db.session.add(InteractionTracker(blog_id=id, ip_address=ip, interaction_type='like'))
+    db.session.add(InteractionTracker(blog_pid=id, ip_address=ip, interaction_type='like'))
     db.session.commit()
     return jsonify({"message": "Like added", "likes": blog.likes, "status": 200}), 200
 
 # Add a view to a blog post
-@app.route("/add/views/<int:id>", methods=['PATCH'])
+@app.route("/add/views/<string:id>", methods=['PATCH'])
 def add_views(id):
-    ip = request.remote_addr
-    if InteractionTracker.query.filter_by(blog_id=id, ip_address=ip, interaction_type='view').first():
-        return jsonify({"message": "Already viewed", "status": 403}), 403
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    today = timestamp()  # Should return something like "2025-06-18"
+
+    # Check if this IP already viewed the blog today
+    already_viewed = InteractionTracker.query.filter_by(
+        blog_pid=id,
+        ip_address=ip,
+        interaction_type='view',
+        day=today
+    ).first()
+
+    if already_viewed:
+        return jsonify({"message": "Already viewed today", "status": 403}), 403
 
     blog = Blog.query.filter_by(pid=id).first()
     if not blog:
         return jsonify({"message": "Blog not found", "status": 404}), 404
 
     blog.views += 1
-    db.session.add(InteractionTracker(blog_id=id, ip_address=ip, interaction_type='view'))
+
+    # Record new view interaction
+    new_interaction = InteractionTracker(
+        blog_pid=id,
+        ip_address=ip,
+        interaction_type='view'  # Store the current day to prevent duplicates
+    )
+    db.session.add(new_interaction)
     db.session.commit()
+
     return jsonify({"message": "View added", "views": blog.views, "status": 200}), 200
 
 # Remove a like from a blog post
-@app.route("/remove/likes/<int:id>", methods=['PATCH'])
+@app.route("/remove/likes/<string:id>", methods=['PATCH'])
 def remove_likes(id):
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     interaction = InteractionTracker.query.filter_by(
-        blog_id=id, ip_address=ip, interaction_type='like'
+        blog_pid=id, ip_address=ip, interaction_type='like'
     ).first()
 
     if not interaction:
@@ -272,6 +311,26 @@ def remove_likes(id):
     db.session.delete(interaction)
     db.session.commit()
     return jsonify({"message": "Like removed", "likes": blog.likes, "status": 200}), 200
+
+
+@app.route("/view/count/<string:username>/<string:datetime>", methods=["GET"])
+def analytics(username, datetime):
+    try:
+        total = (
+            db.session.query(func.count(InteractionTracker.id))
+            .join(Blog, Blog.pid == InteractionTracker.blog_pid)
+            .filter(
+                Blog.author == username,
+                InteractionTracker.day == datetime,
+                InteractionTracker.interaction_type == "view"
+            )
+            .scalar()
+        )
+
+        return jsonify({"total": int(total)}), 200
+
+    except Exception as e:
+        return jsonify({"Error": str(e), "total": int(0)}), 500
 
 @app.route("/send/feedback", methods=["POST"])
 def send_feedback():
@@ -290,6 +349,20 @@ def send_feedback():
     except Exception as e:
         return jsonify({"message": "Error saving feedback", "error": str(e), "status": 500}), 500
 
+
+
+@app.route("/debug/interactions", methods=["GET"])
+def print_interactions():
+    interactions = InteractionTracker.query.all()
+    return jsonify([
+        {
+            "id": i.id,
+            "blog_pid": i.blog_pid,
+            "ip_address": i.ip_address,
+            "interaction_type": i.interaction_type,
+            "day": str(i.day) if hasattr(i, "day") else "N/A",
+        } for i in interactions
+    ]), 200
 
 # ────────────────────────────────
 # ENTRY POINT

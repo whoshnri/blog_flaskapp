@@ -41,7 +41,7 @@ def time_difference(x):
 
 def timestamp():
     today = datetime.now()
-    formatted_date = today.strftime("%d %b, %Y")
+    formatted_date = today.strftime("%d %b %Y")
     return (formatted_date)
 
 def add_to_sheet(email, feedback, rating):

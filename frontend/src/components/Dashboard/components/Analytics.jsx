@@ -5,25 +5,6 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts
 import { Eye, Heart, FileText, TrendingUp } from "lucide-react"
 import { useState, useEffect } from "react"
 
-const data = [
-  { name: "Mon", views: 120 },
-  { name: "Tue", views: 190 },
-  { name: "Wed", views: 300 },
-  { name: "Thu", views: 250 },
-  { name: "Fri", views: 400 },
-  { name: "Sat", views: 350 },
-  { name: "Sun", views: 280 },
-]
-const maxViews = Math.max(...data.map(d => d.views))
-
-const stats = [
-  { icon: FileText, label: "Total Posts", value: 1247, color: "text-blue-400" },
-  { icon: Eye, label: "Total Views", value: 89432, color: "text-green-400" },
-  { icon: Heart, label: "Total Likes", value: 12847, color: "text-red-400" },
-  { icon: TrendingUp, label: "Growth Rate", value: 23, color: "text-purple-400", suffix: "%" },
-]
-
-
 const colorGrade = (num, max) => {
   const rangeIndex = Math.ceil((num / max) * 100);
 
@@ -58,6 +39,7 @@ const colorGrade = (num, max) => {
 function AnimatedCounter({ end, duration }) {
   const [count, setCount] = useState(0);
 
+
   useEffect(() => {
     let startTime;
     let animationFrame;
@@ -80,7 +62,117 @@ function AnimatedCounter({ end, duration }) {
 }
 
 
-export default function AnalyticsPanel() {
+export default function AnalyticsPanel({ user, userName }) {
+
+ const [currentWeek, setCurrentWeek] = useState();
+const [data, setData] = useState([]);
+const [today, setToday] = useState("")
+const [yesterday, setYesterday] = useState("")
+
+
+useEffect(() => {
+  function getCurrentWeekDates() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+    const monday = new Date(today);
+    const diffToMonday = (dayOfWeek + 6) % 7;
+    monday.setDate(today.getDate() - diffToMonday);
+
+    const weekDates = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }); // "18 Jun, 2025"
+    });
+
+    return weekDates;
+  }
+
+  setCurrentWeek(getCurrentWeekDates());
+}, []);
+
+ useEffect(() => {
+  const getFormattedDates = () => {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const format = (date) =>
+      date.toLocaleDateString("en-GB", {
+        weekday: "short" // e.g., "Mon", "Tue"
+      });
+
+    setToday(format(today));
+    setYesterday(format(yesterday));
+  };
+
+  getFormattedDates();
+}, []);
+
+
+const [rate, setRate] = useState(0)
+
+useEffect(() => {
+function calc(){
+  const result1 = data.find(item => item.name === yesterday);
+  const result2 = data.find(item => item.name === today);
+  const view1 = result1?.views ?? 0;
+const view2 = result2?.views ?? 0;
+const percent = ((view2 - view1) / (view1 || 1)) * 100;
+setRate(percent.toFixed(1));
+
+
+}
+calc()
+}, [data])
+
+useEffect(() => {
+  async function fetchViewData() {
+    if (currentWeek?.length === 0) return;
+
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const newData = await Promise.all(
+      currentWeek.map(async (dt, i) => {
+        const views = await runViewSums(dt);
+        return { name: days[i],"views" : views };
+      })
+    );
+
+    setData(newData);
+  }
+
+  fetchViewData();
+}, [currentWeek]);
+
+const runViewSums = async (dt) => {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:5000/view/count/${userName}/${encodeURIComponent(dt)}`
+    );
+    const res = await response.json();
+    if (response.ok) {
+      return res.total ?? 0
+    }
+  } catch (error) {
+    console.error(error);
+    return
+  }
+};
+
+  const stats = [
+    { icon: FileText, label: "Total Posts", value: user.post_count, color: "text-blue-400" },
+    { icon: Eye, label: "Total Views", value: user.view_count, color: "text-green-400" },
+    { icon: Heart, label: "Total Likes", value: user.like_count, color: "text-red-400" },
+    { icon: TrendingUp, label: "Growth", value: rate, color: rate > 0 ? "text-green-400" : "text-red-400", suffix: "%" }
+
+
+  ]
+  const maxViews = Math.max(...data.map(d => d.views), 1)
+
   return (
     <motion.section
       className="mb-8"
@@ -130,7 +222,7 @@ export default function AnalyticsPanel() {
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data}>
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#9CA3AF", fontSize: 12 }} />
-              <YAxis tick={{ fill: "#9CA3AF", fontSize: 12 }} width={30}/>
+              <YAxis tick={{ fill: "#9CA3AF", fontSize: 12 }} width={30} />
               <Bar dataKey="views" radius={[4, 4, 0, 0]}>
                 {data.map((entry, index) => (
                   <Cell
