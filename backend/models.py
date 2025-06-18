@@ -7,19 +7,23 @@ from tools import timestamp
 from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 )
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from slugify import slugify
 import re
 #import the module to calculate time ago or assign it directly
+from flask import Flask, send_from_directory
+import os
 
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 0
 app.config["JWT_SECRET_KEY"] = "@as5XIUdc"
 app.config["JWT_BLACKLIST_ENABLED"] = True
 app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 jwt = JWTManager(app)
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
@@ -88,7 +92,7 @@ class Blog(db.Model):
 
 class InteractionTracker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    blog_pid = db.Column(db.Integer)
+    blog_pid = db.Column(db.String)
     ip_address = db.Column(db.String(100))
     day = db.Column(db.String, nullable=False)
     interaction_type = db.Column(db.String(10))

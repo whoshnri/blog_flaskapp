@@ -4,6 +4,8 @@
 import { motion } from "framer-motion"
 import { Send, Star } from "lucide-react"
 import { useState } from "react"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 export default function FeedbackForm({email}) {
   const [suggestion, setSuggestion] = useState("")
@@ -16,7 +18,7 @@ export default function FeedbackForm({email}) {
   setIsSubmitting(true)
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/send/feedback", {
+    const res = await fetch(`${API}/send/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,7 +29,6 @@ export default function FeedbackForm({email}) {
         "rating" : rating,
       }),
     })
-
     const result = await res.json()
 
     if (res.ok) {

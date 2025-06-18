@@ -17,6 +17,7 @@ const NewBlog = lazy(() => import("./components/NewBlog"))
 const LoginForm = lazy(() => import("./components/Users/Login"))
 const SignupForm = lazy(() => import("./components/Users/SignUp"))
 import Loader from "./components/Loader";
+const API = import.meta.env.VITE_API_BASE_URL;
 
 
 // 👇 Logs out user by calling backend and redirecting to homepage
@@ -24,7 +25,7 @@ const logoutLoader = async () => {
   const token = localStorage.getItem("token");
 
   try {
-    await fetch("http://localhost:5000/logout", {
+    await fetch(`${API}/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -46,7 +47,7 @@ const validateUUID = async ({ params }) => {
     throw redirect("/login");
   }
 
-  const res = await fetch(`http://localhost:5000/verify/uuid/${params.uuid}`, {
+  const res = await fetch(`${API}/verify/uuid/${params.uuid}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

@@ -8,6 +8,7 @@ import FeedbackForm from "./components/Feedback"
 import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom'
 import { useParams } from "react-router-dom"
+const API = import.meta.env.VITE_API_BASE_URL;
 
 const containerVariants = {
   hidden: { opacity: 0, x: 50 },
@@ -32,7 +33,7 @@ const itemVariants = {
   exit: { y: 20, opacity: 0, transition: { duration: 0.3 } },
 }
 
-export default function Dashboard({ }) {
+export default function Dashboard() {
   const navigate = useNavigate()
   const {userName , uuid} = useParams()
   const [userData , setUserData] = useState({})
@@ -40,7 +41,7 @@ export default function Dashboard({ }) {
 
   useEffect(()=>{
       const getData = async() =>{
-      const request = await fetch("http://127.0.0.1:5000/user/" + userName)
+      const request = await fetch(`${API}/user/${userName}`)
       const res = await request.json()
       if (request.status === 201){
         setUserData(res.data)

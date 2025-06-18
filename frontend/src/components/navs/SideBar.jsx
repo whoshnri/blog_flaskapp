@@ -36,6 +36,8 @@ const BlogSidebar = ({ scrollToTarget}) => {
           <p className="text-sm text-gray-500 px-2">BLOG INFO</p>
           <p
             role="button"
+                  onClick={() => navigate("/thebigboss")}
+
             className="flex items-center gap-3 text-base hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]">
             <User size={16} />
             About

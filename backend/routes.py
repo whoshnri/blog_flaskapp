@@ -1,14 +1,25 @@
 from models import User, Blog, app, db, hash_password, verify_password, cache, InteractionTracker
 from sqlalchemy import func
-from flask import jsonify, request
-from tools import timestamp, time_difference, generate_opaque_id,add_to_sheet
+from flask import jsonify, request,send_from_directory
+from tools import timestamp, time_difference, generate_opaque_id,add_to_sheet,add_to_sheet_one
 from datetime import datetime
 from models import create_access_token, get_jwt_identity, jwt_required, TokenBlocklist, get_jwt
 from slugify import slugify
+import os
 
-# ────────────────────────────────
-# USERS
-# ────────────────────────────────
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_static(path):
+    file_path = os.path.join(app.static_folder, path)
+
+    if path != "" and os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, "index.html")
 
 # Get all registered users
 @app.route("/users", methods=["GET"])
@@ -134,12 +145,22 @@ def check_user():
 # BLOGS
 # ────────────────────────────────
 
-# Get all blogs
-@app.route("/get/blogs", methods=['GET'])
+@app.route("/get/blogs", methods=["GET"])
 def get_blogs():
-    blogs = Blog.query.all()
-    if blogs:
-        return jsonify([
+    page = int(request.args.get("page", 1))
+    limit = int(request.args.get("limit", 4))
+
+    query = Blog.query.order_by(Blog.posted_on.desc())
+    total = query.count()
+    offset = (page - 1) * limit
+
+    blogs = query.offset(offset).limit(limit).all()
+
+    # remaining items after this batch
+    remaining = total - (offset + len(blogs))
+
+    return jsonify({
+        "results": [
             {
                 "pid": b.pid,
                 "author": b.author,
@@ -148,10 +169,12 @@ def get_blogs():
                 "desc": b.desc,
                 "created": b.posted_on,
                 "likes": b.likes,
-                "views": b.views
-            } for b in blogs
-        ]), 200
-    return jsonify({"message": "No posts found"}), 404
+                "views": b.views,
+            }
+            for b in blogs
+        ],
+        "has_more": remaining > 0
+    }), 200
 
 #get recent blogs
 @app.route("/get/blogs/recent", methods=['GET'])
@@ -343,11 +366,25 @@ def send_feedback():
     if not email or not feedback or rating is None:
         return jsonify({"message": "Missing fields", "status": 400}), 400
 
-    try:
-        add_to_sheet(email, feedback, rating)
+    res = add_to_sheet(email, feedback, rating)
+    if res == 200:
         return jsonify({"message": "Feedback received", "status": 200}), 200
-    except Exception as e:
-        return jsonify({"message": "Error saving feedback", "error": str(e), "status": 500}), 500
+    else:
+        return jsonify({"message": "Unexpected error", "status": 500}), 522
+
+
+@app.route("/newsletter", methods=["POST"])
+def newsletter():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"message": "Missing fields", "status": 400}), 400
+    res = add_to_sheet_one(email)
+    if res == 200:
+        return jsonify({"message": "email received", "status": 200}), 200
+    else:
+        return jsonify({"message": "Error saving email",  "status": 500}), 500
 
 
 

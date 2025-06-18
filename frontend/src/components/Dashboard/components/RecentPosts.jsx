@@ -5,6 +5,8 @@ import { Eye, Heart, Clock, ArrowRight, PencilIcon, BookOpen } from "lucide-reac
 import { useState , useEffect} from "react"
 import { useNavigate } from "react-router-dom"
 import NotFound from "../../../assets/notfound.svg"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 
 
@@ -39,7 +41,7 @@ const parse = (html) => <span dangerouslySetInnerHTML={{ __html: html }} />;
 useEffect(() => {
   setLoading(true)
   const getPosts = async () => {
-    const url = `http://127.0.0.1:5000/get/blog/username/${username}`
+    const url = `${API}/get/blog/username/${username}`
     try {
       const response = await fetch(url)
       const res = await response.json()

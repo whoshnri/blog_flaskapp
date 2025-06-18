@@ -92,7 +92,7 @@ const Hb = () => {
             <h3 className="text-xl font-semibold text-white mb-4">Let's Connect</h3>
             <div className="flex flex-wrap gap-4">
               <a
-                href="https://github.com/whoshnri"
+                href="https://www.google.com/search?q=%22i%27m+still+building+this%22"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 bg-slate-700/40 hover:bg-slate-600/60 border border-slate-600/50 hover:border-slate-500 rounded-lg px-4 py-3 transition-all duration-300"
@@ -103,7 +103,7 @@ const Hb = () => {
                 </span>
               </a>
               <a
-                href="https://hb.me"
+                href="https://github.com/whoshnri"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 bg-blue-900/40 hover:bg-blue-800/60 border border-slate-600/50 hover:border-slate-500 rounded-lg px-4 py-3 transition-all duration-300"

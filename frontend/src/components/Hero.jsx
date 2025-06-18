@@ -3,6 +3,8 @@ import { Heart, Eye , ArrowRight, Sparkles, Tag, Clock, User, Pencil } from "luc
 import TypedText from "./typedText";
 import { useNavigate } from "react-router-dom";
 import Notfound from "../assets/notfound.svg"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 
 
@@ -21,7 +23,7 @@ function HeroSection() {
   useEffect(() => {
   setIsClient(true);
   const getBlogs = async () => {
-    const url = "http://127.0.0.1:5000/get/blogs/recent";
+    const url = `${API}/get/blogs/recent`;
     try {
       const response = await fetch(url);
       const res = await response.json();

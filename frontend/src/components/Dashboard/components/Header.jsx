@@ -52,12 +52,12 @@ export default function HeaderSidebar({user}) {
           <h1 className="text-2xl cd:text-lg font-bold">Hi, {user.username}</h1>
           <span className="block text-sm my-1 text-gray-300 cd:text-xs roman font-bold">{user.email}</span>
           <div className="flex justify-center gap-5 mt-2 cd:mt-4">
-            <BellIcon
+            {/*<BellIcon
               role='button'
               className="w-5 h-5 hover:text-yellow-400 transition" />
             <SettingsIcon
               role='button'
-              className="w-5 h-5 hover:text-blue-400 transition" />
+              className="w-5 h-5 hover:text-blue-400 transition" />*/}
             <LogOut
               onClick={() =>  navigate("/logout")}
               role='button'

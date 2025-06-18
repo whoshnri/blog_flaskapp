@@ -3,6 +3,8 @@ import { Eye, Heart, ThumbsUp, X, Tag, User, Clock, Share } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from './Loader'
 import { useRef } from "react";
+const API = import.meta.env.VITE_API_BASE_URL;
+
 // Simple HTML Parser
 const parse = (html) => <div dangerouslySetInnerHTML={{ __html: html }} />;
 
@@ -19,7 +21,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
   useEffect(() => {
     const addViewAndFetch = async () => {
       try {
-        await fetch(`http://127.0.0.1:5000/add/views/${pid}`, { method: 'PATCH' });
+        await fetch(`${API}/add/views/${pid}`, { method: 'PATCH' });
       } catch (e) {
         console.error("View add failed", e);
       } finally {
@@ -48,7 +50,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
 
   const getBlog = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/get/blog/${pid}`);
+      const response = await fetch(`${API}/get/blog/${pid}`);
       const res = await response.json();
       if (response.status === 201) {
         setBlog(res);
@@ -62,7 +64,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
 
   const addLike = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/add/likes/${pid}`, { method: 'PATCH' });
+      const res = await fetch(`${API}/add/likes/${pid}`, { method: 'PATCH' });
       const data = await res.json();
       if (res.status === 200) {
         hasLiked(true);
@@ -79,7 +81,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
 
   const removeLike = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/remove/likes/${pid}`, { method: 'PATCH' });
+      const res = await fetch(`${API}/remove/likes/${pid}`, { method: 'PATCH' });
       const data = await res.json();
       if (res.status === 200) {
         alert("Like removed");

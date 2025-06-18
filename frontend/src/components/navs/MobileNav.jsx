@@ -98,6 +98,7 @@ const FloatingNav = ({ scrollToTarget}) => {
 
                 <p
                   role="button"
+                  onClick={() => navigate("/thebigboss")}
                   className="flex items-center gap-3 text-sm hover:text-white px-3 py-2 rounded-md hover:bg-[#1a1a1a]"
                 >
                   <User size={16} />

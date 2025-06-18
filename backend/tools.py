@@ -44,6 +44,9 @@ def timestamp():
     formatted_date = today.strftime("%d %b %Y")
     return (formatted_date)
 
+import pandas as pd
+from datetime import datetime
+
 def add_to_sheet(email, feedback, rating):
     # Load existing CSV or create a new DataFrame if it doesn't exist
     try:
@@ -51,17 +54,36 @@ def add_to_sheet(email, feedback, rating):
     except FileNotFoundError:
         df = pd.DataFrame(columns=["email", "feedback", "rating", "timestamp"])
 
-    # Append the new feedback row
-    new_row = {
+    # Create a new DataFrame for the new feedback row
+    new_row = pd.DataFrame([{
         "email": email,
         "feedback": feedback,
         "rating": rating,
         "timestamp": datetime.now().isoformat()
-    }
-    df = df.append(new_row, ignore_index=True)
+    }])
+
+    # Concatenate the new row
+    df = pd.concat([df, new_row], ignore_index=True)
 
     # Save the updated DataFrame back to the CSV
     df.to_csv("./feedback.csv", index=False)
     return 200
 
+
+def add_to_sheet_one(email):
+    # Load existing CSV or create a new DataFrame if it doesn't exist
+    try:
+        df = pd.read_csv("./emaillist.csv")
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["email"])
+
+    # Create a new DataFrame for the new row
+    new_row = pd.DataFrame({"email": [email]})
+
+    # Concatenate the old and new data
+    df = pd.concat([df, new_row], ignore_index=True)
+
+    # Save the updated DataFrame back to the CSV
+    df.to_csv("./emaillist.csv", index=False)
+    return 200
 

@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts"
 import { Eye, Heart, FileText, TrendingUp } from "lucide-react"
 import { useState, useEffect } from "react"
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 const colorGrade = (num, max) => {
   const rangeIndex = Math.ceil((num / max) * 100);
@@ -151,7 +153,7 @@ useEffect(() => {
 const runViewSums = async (dt) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/view/count/${userName}/${encodeURIComponent(dt)}`
+      `${API}/view/count/${userName}/${encodeURIComponent(dt)}`
     );
     const res = await response.json();
     if (response.ok) {

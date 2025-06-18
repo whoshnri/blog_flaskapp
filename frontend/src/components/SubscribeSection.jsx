@@ -1,16 +1,41 @@
 "use client"
 
 import React from "react"
-
+const API = import.meta.env.VITE_API_BASE_URL;
 import { useState } from "react"
 
 export function SubscribeSection({targetRef}) {
   const [email, setEmail] = useState("")
+  const [submutted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+  setSubmitted(true)
+  try {
+    const res = await fetch(`${API}/newsletter`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({"email" : email}),
+    })
+
+    const result = await res.json()
+
+    if (res.ok) {
+    } else {
+      console.error("Feedback error:", result.message)
+      alert(result.message || "Submission failed.")
+    }
+  } catch (error) {
+    console.error("Network error:", error)
+    alert("Could not submit email. Please try again later.")
+  } finally {
     setEmail("")
+    setTimeout(() => setSubmitted(false), 1000)
   }
+}
+
 
   return (
     <section ref={targetRef} className="py-16 px-6 md:px-12 bg-[hsl(0,0%,10%)]">
@@ -26,10 +51,7 @@ export function SubscribeSection({targetRef}) {
         {/* Email Form */}
         <form
           className="flex flex-col gap-2"
-          onSubmit={e => {
-            e.preventDefault();
-            // handle submit
-          }}
+          onSubmit={handleSubmit}
         >
           <label className="relative cd:w-[80%] xs:scale-[80%] mx-auto">
             <input
@@ -44,7 +66,7 @@ export function SubscribeSection({targetRef}) {
               type="submit"
               className="absolute right-1 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-2 rounded-lg font-semibold hover:bg-black/90 transition"
             >
-              SUBMIT
+          {!submutted ? <span>SUBMIT</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
             </button>
           </label>
         </form>

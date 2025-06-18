@@ -3,6 +3,8 @@ import { ChevronLeft, Trash2 } from "lucide-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
+const API = import.meta.env.VITE_API_BASE_URL;
+
 
 export default function CreateBlogCard({username, uuid}) {
   const [title, setTitle] = useState("");
@@ -35,7 +37,7 @@ export default function CreateBlogCard({username, uuid}) {
     setLoading(true);
     const data = { username, category, content, title };
     try {
-      const response = await fetch("http://127.0.0.1:5000/new/blog", {
+      const response = await fetch(`${API}/new/blog`, {
         method: "POST",
         headers: { "Content-Type": "application/json" ,"Authorization": `Bearer ${token}`},
         body: JSON.stringify(data),
