@@ -55,6 +55,7 @@ def verify_password(plain_password, hashed_password):
 
 
 class User(db.Model):
+    __tablename__ = 'user'
     username = db.Column(db.String(50), nullable=False)
     uuid = db.Column(db.String(200), primary_key=True)
     email = db.Column(db.String(120), nullable=False)
@@ -71,6 +72,7 @@ class User(db.Model):
 
 
 class Blog(db.Model):
+    __tablename__ = 'blog'
     id = db.Column(db.Integer, primary_key=True)
     pid = db.Column(db.String(200))
     title = db.Column(db.Text, nullable=False)
