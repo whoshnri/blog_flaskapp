@@ -18,7 +18,7 @@ load_dotenv()
 
 # In app.py
 def create_app():
-    app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
+    app = Flask(__name__, static_folder="./frontend/dist", static_url_path="")
     # configuration
     return app
 
