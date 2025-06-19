@@ -12,7 +12,6 @@ services:
       cd frontend && npm install && npm run build
 
       echo "=== SETTING UP BACKEND ==="
-      cd ../backend
       python -m pip install --upgrade pip==24.3.1
       pip install -r requirements.txt
       echo "=== INSTALLED PACKAGES ==="
@@ -23,14 +22,14 @@ services:
       echo "Python version: $(python --version)"
       echo "Pip version: $(pip --version)"
       echo "Current directory: $(pwd)"
-      echo "Backend directory contents:"
-      ls -al backend/
+      echo "Directory contents:"
+      ls -al
 
       echo "=== VERIFYING APP.PY ==="
-      cd backend && python -c "from app import app; print(f'App instance found: {app}')"
+      python -c "from app import app; print(f'App instance found: {app}')"
 
       echo "=== STARTING GUNICORN ==="
-      cd backend && gunicorn app:app \
+      gunicorn app:app \
         --bind 0.0.0.0:$PORT \
         --workers 4 \
         --timeout 120 \
