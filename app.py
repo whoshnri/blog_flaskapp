@@ -401,11 +401,20 @@ def print_interactions():
         } for i in interactions
     ]), 200
 
+@app.route('/init-db', methods=['POST'])
+def init_db():
+    try:
+        db.create_all()
+        return jsonify({"message": "All tables created successfully."}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ────────────────────────────────
 # ENTRY POINT
 # ────────────────────────────────
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create tables if not present
+        db.create_all()
     app.run(debug=True)

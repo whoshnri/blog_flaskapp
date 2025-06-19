@@ -16,6 +16,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 # In app.py
 def create_app():
     app = Flask(__name__, static_folder="./frontend/dist", static_url_path="")
@@ -56,8 +57,8 @@ def verify_password(plain_password, hashed_password):
 
 class User(db.Model):
     __tablename__ = 'user'
-    username = db.Column(db.String(50), nullable=False)
-    uuid = db.Column(db.String(200), primary_key=True)
+    username = db.Column(db.String(50), nullable=False , unique=True)
+    uuid = db.Column(db.String(200), primary_key=True, unique=True)
     email = db.Column(db.String(120), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     pfp = db.Column(db.LargeBinary, nullable=True)
