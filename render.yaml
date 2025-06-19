@@ -10,6 +10,7 @@ services:
 
       echo "=== INSTALLING FRONTEND DEPENDENCIES ==="
       cd frontend && npm install && npm run build
+      cd ..  # Return to root directory after frontend build
 
       echo "=== SETTING UP BACKEND ==="
       python -m pip install --upgrade pip==24.3.1
