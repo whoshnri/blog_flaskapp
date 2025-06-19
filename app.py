@@ -178,6 +178,6 @@ def not_found(e):
     return send_from_directory(app.static_folder, "index.html")
 
 if __name__ == '__main__':
-    with app.app_context():
+    with app.context():
         db.create_all()
     app.run(debug=True)
