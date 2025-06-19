@@ -13,7 +13,7 @@ services:
       echo "==> Backend directory list:"
       ls -al backend
       echo "==> Attempting to start app..."
-      cd backend && gunicorn app:app
+      cd backend && gunicorn --bind 0.0.0.0:10000 app:app
     autoDeploy: true
     envVars:
       - key: DATABASE_URL

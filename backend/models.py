@@ -16,10 +16,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+# In app.py
+def create_app():
+    app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
+    # configuration
+    return app
 
-
-
-app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
+app = create_app()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 0
