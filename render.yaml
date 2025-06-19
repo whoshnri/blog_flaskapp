@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: thehbblog
+    name: the-hb-blog
     env: python
     plan: free
     buildCommand: |
@@ -30,12 +30,7 @@ services:
       python -c "from app import app; print(f'App instance found: {app}')"
 
       echo "=== STARTING GUNICORN ==="
-      gunicorn app:app \
-        --bind 0.0.0.0:$PORT \
-        --workers 4 \
-        --timeout 120 \
-        --access-logfile - \
-        --error-logfile -
+      gunicorn app:app
 
     autoDeploy: true
     envVars:
