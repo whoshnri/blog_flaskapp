@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Heart, ThumbsUp, X, Tag, User, Clock, Share } from "lucide-react";
+import { Eye, Heart, ThumbsUp, X, Tag, User, Clock, CopyIcon, CheckLine } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from './Loader'
+import { AnimatePresence, motion } from "framer-motion";
 import { useRef } from "react";
 const API = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,10 +14,21 @@ export default function FuturisticCard({ pid, scrollRef }) {
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [liked, hasLiked] = useState(false);
-  const [showFooter, setShowFooter] = useState(true);
+  const [showFooter, setShowFooter] = useState(false);
   const [scrollPercent, setScrollPercent] = useState(0);
+  const [copied, setCopied] = useState(false)
   const navigate = useNavigate();
 
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
+      })
+      .catch(err => console.error("Failed to copy: ", err));
+  };
 
   useEffect(() => {
     const addViewAndFetch = async () => {
@@ -28,6 +40,8 @@ export default function FuturisticCard({ pid, scrollRef }) {
         getBlog();
       }
     };
+
+
 
     setLoading(true);
     addViewAndFetch();
@@ -45,6 +59,27 @@ export default function FuturisticCard({ pid, scrollRef }) {
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    let timeoutId;
+
+    const handleScroll = () => {
+      setShowFooter(true);
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setShowFooter(false);
+      }, 3000);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
 
 
 
@@ -152,61 +187,140 @@ export default function FuturisticCard({ pid, scrollRef }) {
             </div>
           </div>
           <div className="w-[97%] px-8 py-3 text-base leading-7 tracking-wide text-slate-300">
-            <div className="max-w-none pb-4 text-sm xs:text-lg">{blog.content ? parse(blog.content) : null}</div>
+            <div className="max-w-none pb-16 text-sm xs:text-lg">{blog.content ? parse(blog.content) : null}</div>
           </div>
         </div>
       </section>
 
-      {/* Floating Footer Interaction */}
-      {showFooter && (
-        <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 scale-50 cd:scale-90 transition-all duration-500">
-          <div className="flex items-center gap-3 backdrop-blur-2xl bg-slate-800/90 border border-slate-600/50 rounded-2xl p-2 shadow-2xl shadow-black/20">
-            {liked ? (
-              <button onClick={removeLike} className="group relative overflow-hidden bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 rounded-xl px-6 py-3 transition-all transform hover:scale-105 active:scale-95">
-                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-white fill-current" />
-                  <span className="font-semibold text-white text-sm">Liked</span>
-                </div>
-              </button>
-            ) : (
-              <button onClick={addLike} className="group relative overflow-hidden bg-slate-700/80 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 border border-slate-600/50 hover:border-blue-500/50 rounded-xl px-6 py-3 transition-all transform hover:scale-105 active:scale-95">
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-slate-400 group-hover:text-white" />
-                  <span className="font-semibold text-slate-300 group-hover:text-white text-sm">Like</span>
-                </div>
-              </button>
-            )}
-
-            <div className="w-px h-8 bg-slate-600/50"></div>
-
-            <button onClick={() => navigate(-1)} className="group relative overflow-hidden bg-slate-700/80 hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600 border border-slate-600/50 hover:border-red-500/50 rounded-xl px-6 py-3 transition-all transform hover:scale-105 active:scale-95">
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-2">
-                <X className="w-5 h-5 text-slate-400 group-hover:text-white" />
-                <span className="font-semibold text-slate-300 group-hover:text-white text-sm">Close</span>
+      <div className="fixed bottom-3 left-0 right-0 flex justify-center items-end z-50">
+  <AnimatePresence>
+    {/* Floating Footer Interaction */}
+    {showFooter && (
+      <motion.div
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: "100%", opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="
+          w-fit mx-auto
+          scale-50 xs:scale-60 sm:scale-75 md:scale-85 lg:scale-90 xl:scale-95 2xl:scale-100
+          transition-all duration-500 ease-out
+          px-2 xs:px-3 sm:px-4
+        "
+      >
+        <div className="
+          flex items-center gap-2 xs:gap-3
+          backdrop-blur-2xl bg-slate-800/90
+          border border-slate-600/50
+          rounded-xl xs:rounded-2xl
+          p-1.5 xs:p-2
+          shadow-2xl shadow-black/20
+          min-w-0
+        ">
+          {liked ? (
+            <button
+              onClick={removeLike}
+              className="
+                group relative overflow-hidden
+                bg-gradient-to-r from-rose-600 to-pink-600
+                hover:from-rose-500 hover:to-pink-500
+                rounded-lg xs:rounded-xl
+                px-3 xs:px-4 sm:px-6
+                py-2 xs:py-2.5 sm:py-3
+                transition-all transform hover:scale-105 active:scale-95
+                min-w-0 flex-shrink-0
+              "
+            >
+              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative flex items-center gap-1.5 xs:gap-2">
+                <Heart className="w-4 h-4 xs:w-5 xs:h-5 text-white fill-current flex-shrink-0" />
+                <span className="font-semibold text-white text-xs xs:text-sm whitespace-nowrap">Liked</span>
               </div>
             </button>
-
-            <div className="w-px h-8 bg-slate-600/50"></div>
-
-            <button onClick={() => navigate("")} className="group relative overflow-hidden bg-slate-700/80 hover:bg-gradient-to-r hover:from-green-600 hover:to-green-800 border border-slate-600/50 hover:border-green-500/50 rounded-xl px-6 py-3 transition-all transform hover:scale-105 active:scale-95">
+          ) : (
+            <button
+              onClick={addLike}
+              className="
+                group relative overflow-hidden
+                bg-slate-700/80
+                hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600
+                border border-slate-600/50 hover:border-blue-500/50
+                rounded-lg xs:rounded-xl
+                px-3 xs:px-4 sm:px-6
+                py-2 xs:py-2.5 sm:py-3
+                transition-all transform hover:scale-105 active:scale-95
+                min-w-0 flex-shrink-0
+              "
+            >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-2">
-                <Share className="w-5 h-5 text-slate-400 group-hover:text-white" />
-                <span className="font-semibold text-slate-300 group-hover:text-white text-sm">Share</span>
+              <div className="relative flex items-center gap-1.5 xs:gap-2">
+                <Heart className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
+                <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Like</span>
               </div>
             </button>
-          </div>
+          )}
 
-          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-            <div className="w-1 h-1 bg-blue-400/60 rounded-full animate-pulse"></div>
-            <div className="w-1 h-1 bg-blue-400/40 rounded-full animate-pulse delay-75"></div>
-            <div className="w-1 h-1 bg-blue-400/60 rounded-full animate-pulse delay-150"></div>
-          </div>
+          <div className="w-px h-6 xs:h-8 bg-slate-600/50 flex-shrink-0"></div>
+
+          <button
+            onClick={() => navigate(-1)}
+            className="
+              group relative overflow-hidden
+              bg-slate-700/80
+              hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600
+              border border-slate-600/50 hover:border-red-500/50
+              rounded-lg xs:rounded-xl
+              px-3 xs:px-4 sm:px-6
+              py-2 xs:py-2.5 sm:py-3
+              transition-all transform hover:scale-105 active:scale-95
+              min-w-0 flex-shrink-0
+            "
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex items-center gap-1.5 xs:gap-2">
+              <X className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
+              <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Close</span>
+            </div>
+          </button>
+
+          <div className="w-px h-6 xs:h-8 bg-slate-600/50 flex-shrink-0"></div>
+
+          <button
+            disabled={copied}
+            onClick={copyLink}
+            className="
+              group relative overflow-hidden
+              bg-slate-700/80
+              hover:bg-gradient-to-r hover:from-green-600 hover:to-green-800
+              border border-slate-600/50 hover:border-green-500/50
+              rounded-lg xs:rounded-xl
+              px-3 xs:px-4 sm:px-6
+              py-2 xs:py-2.5 sm:py-3
+              transition-all transform hover:scale-105 active:scale-95
+              min-w-0 flex-shrink-0
+            "
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex items-center gap-1.5 xs:gap-2">
+              {copied ? (
+                <CheckLine className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
+              ) : (
+                <CopyIcon className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
+              )}
+              <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Share</span>
+            </div>
+          </button>
         </div>
-      )}
+
+        <div className="absolute -top-1.5 xs:-top-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/60 rounded-full animate-pulse"></div>
+          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/40 rounded-full animate-pulse delay-75"></div>
+          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/60 rounded-full animate-pulse delay-150"></div>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
     </>
   );
 }

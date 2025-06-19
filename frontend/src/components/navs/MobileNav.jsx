@@ -9,6 +9,8 @@ import {
   X
 } from "lucide-react";
 
+
+
 const FloatingNav = ({ scrollToTarget}) => {
   const [open, setOpen] = useState(false);
   const navRef = useRef();
@@ -38,10 +40,11 @@ const FloatingNav = ({ scrollToTarget}) => {
     return (
       <div className="fixed top-9 right-9 z-50 font-mono">
         {/* Floating Toggle Button */}
+        {open && <div className="absolute h-[100vh] bg-black/70 -z-10 top-0 left-0 right-0 bottom-0"></div>}
         {!open && (
           <div
             onClick={() => setOpen(true)}
-            className="w-14 h-14 bg-white text-black rounded-xl flex items-center justify-center
+            className="w-12 h-12 bg-white border-2 border-slate-800 text-black rounded-xl flex items-center justify-center
           cursor-pointer transition-all duration-200 hover:bg-slate-800 hover:text-white shadow-lg"
           >
             <span className="text-xl font-bold select-none">hb</span>

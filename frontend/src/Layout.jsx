@@ -7,6 +7,7 @@ import MobileNav from "./components/navs/MobileNav"
 import HeroSection from "./components/Hero"
 import { SubscribeSection } from "./components/SubscribeSection"
 import Footer from "./components/Footer"
+import Popup from "./components/Popup"
 import Loader from "./components/Loader"
 import SignupForm from "./components/Users/SignUp"
 import LoginForm from "./components/Users/Login"
@@ -22,22 +23,24 @@ const Layout = () => {
     targetRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  const showSearch = (e) => {
-    e.preventDefault()
-    setShowSearchPageLoader(true)
-    setSearchPage(true)
-  }
+
 
   useEffect(() => {
-    setShow(true)
-  }, [])
+  const showTimeout = setTimeout(() => {
+    setShow(true);
+  }, 2000);
+
+  return () => {
+    clearTimeout(showTimeout);
+  };
+}, []);
 
   return (
     <AnimatePresence mode="wait">
-      {show && (
+
         <motion.div
           key="layout"
-          initial={{ opacity: .7 }}
+          initial={{ opacity: .9 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
@@ -52,13 +55,26 @@ const Layout = () => {
             </div>
           </div>
 
-          <div className="h-[100vh] w-full custom-scrollbar overflow-auto">
+          <div className="relative h-[100vh] w-full custom-scrollbar overflow-auto">
             <HeroSection />
             <SubscribeSection targetRef={targetRef} />
             <Footer />
+            {show && (<AnimatePresence mode="wait">
+                <motion.div
+                  key="layout"
+                  initial={{ opacity: 0}}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ delay: 1, duration: .4 }}
+                  className=""
+                >
+                  <Popup />
+                </motion.div>
+              </AnimatePresence>
+            )}
           </div>
         </motion.div>
-      )}
+
     </AnimatePresence>
   )
 }

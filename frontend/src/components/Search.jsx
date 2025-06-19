@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Tag, User, Calendar, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import MobileNav from "./navs/SearchNav"
 const API = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -94,14 +95,21 @@ export default function SearchPage({ setLoading, scrollRef }) {
     <div className="relative min-h-screen bg-black text-white">
       {/* Filters */}
       <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6">
+       <div className="flex justify-between">
         <h1 className="text-3xl font-bold mb-2">Search for blogs</h1>
-        <input
+       
+            <div className="cd:hidden z-20">
+              <MobileNav></MobileNav>
+            </div>
+           </div>
+            <input
           type="text"
           placeholder="Search..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full px-4 py-1 mb-2 rounded-md bg-[#0f0f0f] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
+
         <div className="grid grid-cols-2 md:flex gap-4">
           <div className="flex flex-col w-full md:w-1/3">
             <label className="text-xs text-gray-400 mb-1">Category</label>
@@ -150,7 +158,7 @@ export default function SearchPage({ setLoading, scrollRef }) {
                   <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border mb-2 ${getCategoryBadgeColor(color)}`}>
                     <Tag className="w-3 h-3" />
                     {item.category}
-                  </div>
+                  </div> 
                   <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-300">{item.title}</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-300">

@@ -29,10 +29,6 @@ const SearchPage = () => {
             <aside className="hidden cd:block min-w-56 h-screen bg-[#0f0f0f] border-r border-gray-800 fixed top-0 left-0 overflow-hidden z-10">
               <BlogSidebar />
             </aside>
-            <div className="cd:hidden z-20">
-              <MobileNav></MobileNav>
-            </div>
-
             {/* Main Content */}
             <main
           ref={scrollRef}
@@ -41,7 +37,7 @@ const SearchPage = () => {
               <Footer />
 
 
-          {loading && <Loader />}
+          {loading && <Loader />} 
             </main>
           </div>
         </motion.div>
