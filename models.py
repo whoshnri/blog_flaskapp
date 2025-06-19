@@ -24,6 +24,10 @@ def create_app():
 
 app = create_app()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 1800,
+}
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 0
 app.config["JWT_SECRET_KEY"] = "@as5XIUdc"
