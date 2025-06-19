@@ -4,16 +4,39 @@ services:
     env: python
     plan: free
     buildCommand: |
+      echo "=== SETTING UP PYTHON 3.13.1 ENVIRONMENT ==="
+      python --version
+      pip --version
+
+      echo "=== INSTALLING FRONTEND DEPENDENCIES ==="
       cd frontend && npm install && npm run build
-      cd ../backend && pip install -r requirements.txt
+
+      echo "=== SETTING UP BACKEND ==="
+      cd ../backend
+      python -m pip install --upgrade pip==24.3.1
+      pip install -r requirements.txt
+      echo "=== INSTALLED PACKAGES ==="
+      pip list
+
     startCommand: |
-      echo "==> CWD: $(pwd)"
-      echo "==> Root directory list:"
-      ls -al
-      echo "==> Backend directory list:"
-      ls -al backend
-      echo "==> Attempting to start app..."
-      cd backend && gunicorn --bind 0.0.0.0:10000 app:app
+      echo "=== STARTING APPLICATION ==="
+      echo "Python version: $(python --version)"
+      echo "Pip version: $(pip --version)"
+      echo "Current directory: $(pwd)"
+      echo "Backend directory contents:"
+      ls -al backend/
+
+      echo "=== VERIFYING APP.PY ==="
+      cd backend && python -c "from app import app; print(f'App instance found: {app}')"
+
+      echo "=== STARTING GUNICORN ==="
+      cd backend && gunicorn app:app \
+        --bind 0.0.0.0:$PORT \
+        --workers 4 \
+        --timeout 120 \
+        --access-logfile - \
+        --error-logfile -
+
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
@@ -24,3 +47,7 @@ services:
         value: "@as5XIUdc"
       - key: RENDER
         value: "true"
+      - key: PYTHON_VERSION
+        value: "3.13.1"
+      - key: PIP_VERSION
+        value: "24.3.1"
