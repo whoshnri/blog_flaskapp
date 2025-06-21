@@ -4,9 +4,10 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    outDir: path.resolve(__dirname, 'dist'), // or 'frontend/dist' if that's where Flask serves from
-    emptyOutDir: true,
-  },
-  base: '/', // ensures correct routing for React Router
+  resolve: {
+    alias: {
+      react: path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom')
+    }
+  }
 })

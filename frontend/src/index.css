@@ -158,29 +158,6 @@ h3, .roman {
   }
 }
 
-/* override editor colors */
-.ql-editor {
-  max-height: 420px;
-  font-size: medium;
-  overflow-y: auto;
-  color: white;
-  scrollbar-width: thin;
-  scrollbar-color: #8d9b92 transparent; /* green scrollbar */
-}
-
-.ql-container {
-  border: none !important;
-  background-color: transparent !important;
-  padding-bottom: 2rem;
-  height: 100%;
-}
-
-.ql-toolbar {
-  background-color: #1f2937; /* Tailwind gray-800 */
-  border: none !important;
-  border-bottom: 1px solid #374151; /* Tailwind gray-700 */
-  border-radius: 0.1rem 0.1rem 0 0;
-}
 
 @keyframes bounce {
   0%,

@@ -1,26 +1,37 @@
-// src/router.jsx
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
-  redirect
+  Routes,
+  redirect,
+  useLocation
 } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import React from "react";
 import App from "./App";
 import Layout from "./Layout";
-const Dashboard = lazy(() => import("./components/Dashboard/Dashboard"))
-const SearchPage = lazy(() => import("./components/SearchPage"))
-const ErrorPage = lazy(() => import("./ErrorPage"))
-const Hb = lazy(() => import("./Hb"))
-const ReadBlog = lazy(() => import("./components/ReadBlog"))
-const NewBlog = lazy(() => import("./components/NewBlog"))
-const LoginForm = lazy(() => import("./components/Users/Login"))
-const SignupForm = lazy(() => import("./components/Users/SignUp"))
 import Loader from "./components/Loader";
+import ErrorPage from "./ErrorPage";
+// Lazy imports
+const Dashboard = lazy(() => import("./components/Dashboard/Dashboard"));
+const SearchPage = lazy(() => import("./components/SearchPage"));
+const Hb = lazy(() => import("./Hb"));
+const ReadBlog = lazy(() => import("./components/ReadBlog"));
+const NewBlog = lazy(() => import("./components/NewBlog"));
+const LoginForm = lazy(() => import("./components/Users/Login"));
+const SignupForm = lazy(() => import("./components/Users/SignUp"));
+
 const API = import.meta.env.VITE_API_BASE_URL;
 
+function HandlerRoutes() {
+  const location = useLocation();
 
-// 👇 Logs out user by calling backend and redirecting to homepage
+  return (
+    <StackHandler app={stackClientApp} location={location.pathname} fullPage />
+  );
+}
+
+// Logout logic
 const logoutLoader = async () => {
   const token = localStorage.getItem("token");
 
@@ -35,10 +46,11 @@ const logoutLoader = async () => {
     console.error("Logout failed:", error);
   }
 
-  localStorage.removeItem("token"); // clear client-side token
+  localStorage.removeItem("token");
   return redirect("/");
 };
 
+// UUID token verification loader
 const validateUUID = async ({ params }) => {
   const token = localStorage.getItem("token");
 
@@ -59,38 +71,82 @@ const validateUUID = async ({ params }) => {
     throw redirect("/login");
   }
 
-  return res.json(); // Passes data to useLoaderData()
+  return res.json();
 };
-
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App />} errorElement={<ErrorPage />}>
-      <Route index element={<Layout />} />
+    <>
 
-      <Route
-        path="dashboard/:userName/:uuid"
-        element={<Suspense fallback={<Loader />}><Dashboard />
-        </Suspense>}
-        loader={validateUUID}
-        errorElement={<ErrorPage />}
-      />
+      {/* 👇 Main App layout */}
+      <Route path="/" element={<App />} errorElement={<ErrorPage />}>
+        <Route index element={<Layout />} />
 
-      <Route path="search" element={<Suspense fallback={<Loader />}><SearchPage />
-        </Suspense>} />
-      <Route path="read/:pid" element={<Suspense fallback={<Loader />}><ReadBlog />
-        </Suspense>} />
-      <Route path="new/:username/:uuid" element={<Suspense fallback={<Loader />}><NewBlog />
-        </Suspense>} />
-      <Route path="login" element={<Suspense fallback={<Loader />}><LoginForm />
-        </Suspense>} />
-      <Route path="signup" element={<Suspense fallback={<Loader />}><SignupForm />
-        </Suspense>} />
-      <Route path="logout" loader={logoutLoader} />
-      <Route path="404" element={<ErrorPage />} />
-      <Route path="thebigboss" element={<Suspense fallback={<Loader />}><Hb />
-        </Suspense>} />
-    </Route>
+        <Route
+          path="dashboard/:userName/:uuid"
+          element={
+            <Suspense fallback={<Loader />}>
+              <Dashboard />
+            </Suspense>
+          }
+          loader={validateUUID}
+          errorElement={<ErrorPage />}
+        />
+
+        <Route
+          path="search"
+          element={
+            <Suspense fallback={<Loader />}>
+              <SearchPage />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="read/:pid"
+          element={
+            <Suspense fallback={<Loader />}>
+              <ReadBlog />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="new/:username/:uuid"
+          element={
+            <Suspense fallback={<Loader />}>
+              <NewBlog />
+            </Suspense>
+          }
+        />
+
+
+        <Route
+          path="login"
+          element={
+              <LoginForm />
+          }
+        />
+
+        <Route
+          path="signup"
+          element={
+              <SignupForm />
+          }
+        />
+
+        <Route path="logout" loader={logoutLoader} />
+        <Route
+          path="thebigboss"
+          element={
+            <Suspense fallback={<Loader />}>
+              <Hb />
+            </Suspense>
+          }
+        />
+        <Route path="404" element={<ErrorPage />} />
+      </Route>
+    </>
   )
 );
 

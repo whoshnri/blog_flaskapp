@@ -11,10 +11,9 @@ export default function DarkChecklistModal() {
 });
 
 
-
   const checklist = [
   { label: "Implement full user authentication (JWT, password reset, auth guards)", checked: false },
-  { label: "Add rich text editor with image upload for creating posts", checked: false },
+  { label: "Add rich text editor for creating posts", checked: true },
   { label: "Add search functionality with debounced input and filtering", checked: false },
   { label: "Add a newsletter Mailchimp integration", checked: false },
   { label: "Create post edit feature on admin dashboard", checked: false },
@@ -46,8 +45,8 @@ export default function DarkChecklistModal() {
 
 
   return isVisible && (
-    <div className="absolute top-0 left-0 bottom-0 right-0 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className=" overflow-y-auto custom-scrollbar bg-gray-800 h-[80%] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-700">
+    <div className="absolute top-0 left-0 bottom-0 right-0 inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
+      <div className=" overflow-y-auto custom-scrollbar bg-neutral-900 h-[80%] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-700">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Hey there 👋</h2>
