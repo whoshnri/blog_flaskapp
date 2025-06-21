@@ -21,13 +21,13 @@ const getCategoryColor = (num) => {
 const getCategoryBadgeColor = (num) => {
   switch (num) {
     case 1:
-      return "bg-purple-800/30 text-purple-400 border-purple-500/30";
+      return "bg-purple-800/30 text-purple-300 border-purple-400/30";
     case 2:
-      return "bg-green-800/30 text-green-400 border-green-500/30";
+      return "bg-green-800/30 text-green-300 border-green-400/30";
     case 3:
-      return "bg-blue-800/30 text-blue-400 border-blue-500/30";
+      return "bg-blue-800/30 text-blue-300 border-blue-400/30";
     default:
-      return "bg-gray-800/30 text-gray-400 border-gray-500/30";
+      return "bg-gray-800/30 text-gray-300 border-gray-400/30";
   }
 };
 
@@ -97,7 +97,7 @@ export default function SearchPage({ setLoading, scrollRef }) {
       <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6">
        <div className="flex justify-between">
         <h1 className="text-3xl font-bold mb-2">Search for blogs</h1>
-       
+
             <div className="cd:hidden z-20">
               <MobileNav></MobileNav>
             </div>
@@ -158,7 +158,7 @@ export default function SearchPage({ setLoading, scrollRef }) {
                   <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border mb-2 ${getCategoryBadgeColor(color)}`}>
                     <Tag className="w-3 h-3" />
                     {item.category}
-                  </div> 
+                  </div>
                   <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-300">{item.title}</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-300">

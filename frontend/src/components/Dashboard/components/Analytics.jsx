@@ -8,7 +8,7 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 
 const colorGrade = (num, max) => {
-  const rangeIndex = Math.ceil((num / max) * 100);
+  const rangeIndex = Math.min(Math.ceil((num / max) * 100), 100);
 
   const gradeColors = [
     "#ff4d4f",
@@ -66,7 +66,7 @@ function AnimatedCounter({ end, duration }) {
 
 export default function AnalyticsPanel({ user, userName }) {
 
- const [currentWeek, setCurrentWeek] = useState();
+const [currentWeek, setCurrentWeek] = useState();
 const [data, setData] = useState([]);
 const [today, setToday] = useState("")
 const [yesterday, setYesterday] = useState("")
@@ -98,6 +98,7 @@ useEffect(() => {
 }, []);
 
  useEffect(() => {
+  console.log(user)
   const getFormattedDates = () => {
     const today = new Date();
     const yesterday = new Date();
@@ -119,21 +120,33 @@ useEffect(() => {
 const [rate, setRate] = useState(0)
 
 useEffect(() => {
-function calc(){
-  const result1 = data.find(item => item.name === yesterday);
-  const result2 = data.find(item => item.name === today);
-  const view1 = result1?.views ?? 0;
-const view2 = result2?.views ?? 0;
-const percent = ((view2 - view1) / (view1 || 1)) * 100;
-setRate(percent.toFixed(1));
+  function calc() {
+    const result1 = data.find(item => item.name === yesterday);
+    const result2 = data.find(item => item.name === today);
 
+    const view1 = result1?.views ?? 0;
+    const view2 = result2?.views ?? 0;
 
-}
-calc()
-}, [data])
+    let percentChange = 0;
+
+    if (view1 === 0 && view2 > 0) {
+      percentChange = 100;
+    } else if (view1 === 0 && view2 === 0) {
+      percentChange = 0;
+    } else {
+      percentChange = ((view2 - view1) / view1) * 100;
+    }
+
+    setRate(percentChange.toFixed(1));
+  }
+
+  if (data.length > 0) calc();
+}, [data]);
+
 
 useEffect(() => {
   async function fetchViewData() {
+    if (!userName) return;
     if (currentWeek?.length === 0) return;
 
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -169,7 +182,22 @@ const runViewSums = async (dt) => {
     { icon: FileText, label: "Total Posts", value: user.post_count, color: "text-blue-400" },
     { icon: Eye, label: "Total Views", value: user.view_count, color: "text-green-400" },
     { icon: Heart, label: "Total Likes", value: user.like_count, color: "text-red-400" },
-    { icon: TrendingUp, label: "Growth", value: rate, color: rate > 0 ? "text-green-400" : "text-red-400", suffix: "%" }
+    {
+  icon: TrendingUp,
+  label: rate === 0
+    ? "No change"
+    : rate > 0
+      ? "Up by"
+      : "Down by",
+  value: Math.abs(rate), // remove negative sign for display
+  suffix: "%",
+  color: rate > 0
+    ? "text-green-400"
+    : rate < 0
+      ? "text-red-400"
+      : "text-gray-400"
+}
+
 
 
   ]
@@ -191,7 +219,7 @@ const runViewSums = async (dt) => {
             <motion.div
               key={stat.label}
               role="button"
-              className="bg-gray-900/50 backdrop-blur-sm p-3 lg:p-4 rounded-2xl border border-gray-800 group hover:border-gray-700 transition-all duration-300"
+              className="bg-black backdrop-blur-sm p-3 lg:p-4 rounded-2xl border border-gray-800 group hover:border-gray-700 transition-all duration-300"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -205,7 +233,7 @@ const runViewSums = async (dt) => {
                 />
               </div>
               <div className="text-2xl lg:text-xl font-bold text-white mb-1">
-                <AnimatedCounter end={stat.value} duration={1400} />
+                <AnimatedCounter end={stat.value} duration={700} />
                 {stat.suffix}
               </div>
               <div className="text-sm text-gray-400">{stat.label}</div>
@@ -215,7 +243,7 @@ const runViewSums = async (dt) => {
 
         {/* Chart */}
         <motion.div
-          className="bg-gray-900/50 backdrop-blur-sm m p-6 lg:col-span-2 rounded-2xl border border-gray-800"
+          className="bg-black backdrop-blur-sm m p-6 lg:col-span-2 rounded-2xl border border-gray-800"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}

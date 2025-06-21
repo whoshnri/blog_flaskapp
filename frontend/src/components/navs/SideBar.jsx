@@ -1,6 +1,8 @@
 import React from "react";
 import { Home, User, Star, BellPlus, Search, BookPlus } from "lucide-react"; // mock icons
 import {useNavigate} from "react-router-dom"
+import bgImg from "../../assets/hehe.jpg"
+
 
 const BlogSidebar = ({ scrollToTarget}) => {
   const navigate = useNavigate()
@@ -72,7 +74,7 @@ const BlogSidebar = ({ scrollToTarget}) => {
         onClick={() => navigate("/thebigboss")}
         className="flex items-center gap-3 px-2 mt-6 pt-4 border-t border-[hsl(0,0%,30%)]">
         <img
-          src="https://via.placeholder.com/36"
+          src={bgImg}
           alt="Henry Bassey"
           className="w-10 h-10 rounded-full border object-cover"
         />

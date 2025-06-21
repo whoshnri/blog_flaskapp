@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff, ArrowLeft, HomeIcon } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, HomeIcon, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import loginIcon from "./Login-bro.svg"
 const API = import.meta.env.VITE_API_BASE_URL;
@@ -11,11 +11,13 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState(1);
+  const [logging, setLogging] = useState(false);
   const [errors, setErrors] = useState({});
+  const [res, setRes] = useState({})
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  const steps = [1, 2];
+  const steps = [1, 2, 3];
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -51,6 +53,7 @@ export default function LoginForm() {
 
   const auth = async (e) => {
     e.preventDefault();
+      setLogging(true)
     const newErrors = {};
 
     if (validate()) {
@@ -66,13 +69,16 @@ export default function LoginForm() {
       if (results.status === 402) {
         newErrors.password = "Invalid Password";
         setErrors(newErrors);
+        setLogging(false)
       } else if (results.status === 401) {
         setStep(1);
         newErrors.email = "Invalid Email";
         setErrors(newErrors);
       } else if (response.status === 200) {
         localStorage.setItem("token", results.token);
-        navigate(`/dashboard/${results.username}/${results.uuid}`);
+        setLogging(false)
+        setRes(results)
+        setStep(3)
       }
     }
   };
@@ -109,7 +115,7 @@ export default function LoginForm() {
             <div
               key={s}
               className={`h-2 w-8 rounded-full ${
-                s <= step ? "bg-green-500" : "bg-gray-700"
+                s <= step ? "bg-blue-500" : "bg-gray-700"
               }`}
             />
           ))}
@@ -139,7 +145,7 @@ export default function LoginForm() {
                   } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
                     errors.email
                       ? "focus:ring-red-500"
-                      : "focus:ring-green-500 focus:border-green-500"
+                      : "focus:ring-blue-500 focus:border-blue-500"
                   }`}
                   placeholder="you@example.com"
                 />
@@ -157,7 +163,7 @@ export default function LoginForm() {
                 <button
                   role="button"
                   onClick={nextStep}
-                  className="w-20 h-9 mt-3 float-right bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] rounded-md text-sm font-semibold"
+                  className="w-20 h-9 mt-3 float-right bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] rounded-md text-sm font-semibold"
                 >
                   Next
                 </button>
@@ -180,7 +186,7 @@ export default function LoginForm() {
                   } rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
                     errors.password
                       ? "focus:ring-red-500"
-                      : "focus:ring-green-500 focus:border-green-500"
+                      : "focus:ring-blue-500 focus:border-blue-500"
                   } pr-10`}
                   placeholder="••••••••"
                 />
@@ -198,30 +204,53 @@ export default function LoginForm() {
                   <ArrowLeft
                     role="button"
                     onClick={prevStep}
-                    className="w-9 h-9 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-md p-1 transition-all duration-200 ease-in-out shadow-md hover:scale-105"
+                    className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-md p-1 transition-all duration-200 ease-in-out shadow-md hover:scale-105"
                   />
                   <button
                     type="submit"
                     onClick={auth}
-                    className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] px-5 py-2 rounded-md text-sm font-semibold"
+                    className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 transition-all duration-200 ease-in-out shadow-md hover:scale-[1.03] px-5 py-2 rounded-md text-sm font-semibold"
                   >
-                    Login
+                    {!logging ? <span>Login</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
                   </button>
                 </div>
               </div>
             )}
+            {
+          step === 3 && (
+            <div className="flex flex-col items-center space-y-3 rounded-lg mt-10">
+              <div className="w-16 h-16  bg-blue-600 rounded-full flex items-center justify-center mb-2">
+                <Check className="w-12 h-12  animate-pulse text-white" />
+              </div>
+              <p className="text-white text-center text-sm font-medium">Login Successful</p>
+              <button
+                onClick={() => {
+                      setLogging(true)
+                      navigate(`/dashboard/${res.username}/${res.uuid}`)
+              }}
+                className="px-6 py-2 bg-blue-700 text-slate-200 font-sans mt-4 hover:bg-blue-600 rounded-md font-bold transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                    {!logging ? <span>Dashboard</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
+
+              </button>
+            </div>
+  )
+}
+
+{step !== 3 &&
             <div className="flex mt-6 gap-2 items-center">
           <p
             onClick={() => navigate("/signup")}
-            className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
+            className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
           >
             New here? <span className="font-medium">Join now</span>
           </p>
           <p
             onClick={() => navigate("/")}
-            className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
+            className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
           >Take me home</p>
         </div>
+      }
           </motion.div>
 
         </AnimatePresence>

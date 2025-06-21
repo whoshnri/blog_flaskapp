@@ -9,7 +9,7 @@ import Loader from "./Loader";
 import SearchPageComponent from "./Search";
 
 const SearchPage = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState();
   const scrollRef = useRef(null)
 
 
@@ -32,12 +32,12 @@ const SearchPage = () => {
             {/* Main Content */}
             <main
           ref={scrollRef}
-             className={`relative ml-0 cd:ml-56 w-full flex-1  bg-black text-white ${loading ? "overflow-hidden" : "overflow-y-auto"}`}>
-              <SearchPageComponent setLoading={setLoading} scrollRef={scrollRef}/>
+             className={`relative ml-0 cd:ml-56 w-full flex-1  custom-scrollbar bg-black text-white ${loading ? "overflow-hidden" : "overflow-y-auto"}`}>
+              {<SearchPageComponent setLoading={setLoading} scrollRef={scrollRef}/>}
               <Footer />
 
 
-          {loading && <Loader />} 
+          {loading && <Loader />}
             </main>
           </div>
         </motion.div>

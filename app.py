@@ -280,9 +280,16 @@ def add_likes(id):
     return jsonify({"message": "Like added", "likes": blog.likes, "status": 200}), 200
 
 # Add a view to a blog post
+def get_real_ip():
+    forwarded_for = request.headers.get('X-Forwarded-For', '')
+    if forwarded_for:
+        # Split multiple proxies and take the first IP (the client)
+        return forwarded_for.split(',')[0].strip()
+    return request.remote_addr
+
 @app.route("/add/views/<string:id>", methods=['PATCH'])
 def add_views(id):
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    ip = get_real_ip()
     today = timestamp()  # Should return something like "2025-06-18"
 
     # Check if this IP already viewed the blog today

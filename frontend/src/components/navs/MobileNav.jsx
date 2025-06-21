@@ -8,6 +8,8 @@ import {
   Search,
   X
 } from "lucide-react";
+import bgImg from "../../assets/hehe.jpg"
+
 
 
 
@@ -144,7 +146,7 @@ const FloatingNav = ({ scrollToTarget}) => {
               className="flex items-center gap-3 mt-6 pt-4 border-t border-[hsl(0,0%,30%)]"
             >
               <img
-                src="https://via.placeholder.com/36"
+                src={bgImg}
                 alt="Henry Bassey"
                 className="w-10 h-10 rounded-full border object-cover"
               />

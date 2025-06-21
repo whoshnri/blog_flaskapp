@@ -59,7 +59,7 @@ export default function FeedbackForm({email}) {
       <h2 className="text-xl font-semibold mb-3 text-white">Share Your Feedback</h2>
 
       <motion.div
-        className="bg-gray-900/50 backdrop-blur-sm p-5 rounded-2xl border border-gray-800"
+        className="bg-black backdrop-blur-sm p-4 rounded-2xl border border-gray-800"
         whileHover={{ borderColor: "#4B5563" }}
         transition={{ duration: 0.3 }}
       >

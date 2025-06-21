@@ -15,14 +15,11 @@ export default function DarkChecklistModal() {
   const checklist = [
   { label: "Implement full user authentication (JWT, password reset, auth guards)", checked: false },
   { label: "Add rich text editor with image upload for creating posts", checked: false },
-  { label: "Switch rich text editor with image upload", checked: false },
-  { label: "Fix image upload on signup PLEASE DO NOT USE THAT FEATURE", checked: false },
   { label: "Add search functionality with debounced input and filtering", checked: false },
   { label: "Add a newsletter Mailchimp integration", checked: false },
-  { label: "Enable commenting or feedback section per post", checked: false },
   { label: "Create post edit feature on admin dashboard", checked: false },
   { label: "Expand database --IF NECESSARY", checked: false },
-  { label: "Improve UI per suggestions", checked: false },
+  { label: "Improve UI per suggestions", checked: true },
 ];
 
   const handleItemCheck = (index) => {
@@ -50,7 +47,7 @@ export default function DarkChecklistModal() {
 
   return isVisible && (
     <div className="absolute top-0 left-0 bottom-0 right-0 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className=" overflow-y-auto custom-scrollbar bg-gray-800 h-[90%] rounded-lg shadow-2xl p-8 w-full max-w-md mx-4 border border-gray-700">
+      <div className=" overflow-y-auto custom-scrollbar bg-gray-800 h-[80%] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-700">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Hey there 👋</h2>
@@ -63,7 +60,7 @@ export default function DarkChecklistModal() {
         </div>
         <p className="text-white text-sm leading-relaxed mb-6 px-2 py-3 rounded-md bg-gray-700/50 border-l-4 border-blue-500 shadow-sm">
   <span className="font-bold text-blue-400">Welcome to THBB!</span><br />
-  I'm happy to launch v1. It’s been a long journey — and it’s only just beginning.
+  I'm happy to launch v1.5 It’s been a long journey — and it’s only just beginning.
   <br /><br />
   You may have noticed that a lot of revamping is due, but don't worry — I'll get it done.
   <br /><br />
@@ -78,7 +75,7 @@ export default function DarkChecklistModal() {
       <div
         key={index}
         onClick={() => handleItemCheck(index)}
-        className="flex items-center space-x-3 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors cursor-pointer"
+        className="flex items-center space-x-3 p-3 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors cursor-pointer"
       >
         <div className="flex-shrink-0">
           {isChecked ? (
@@ -138,16 +135,9 @@ export default function DarkChecklistModal() {
         <div className="flex space-x-3">
           <button
             onClick={handleClose}
-            className="flex-1 px-4 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
+            className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
           >
             Close
-          </button>
-          <button
-            onClick={handleNavigate}
-            className="flex-1 px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2"
-          >
-            <span>About me</span>
-            <ArrowRight size={18} />
           </button>
         </div>
       </div>

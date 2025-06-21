@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff, HomeIcon } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, HomeIcon , Check} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import image1 from "./signup.jpg"
 const API = import.meta.env.VITE_API_BASE_URL;
@@ -17,14 +17,15 @@ export default function SignupForm() {
     password: "",
     confirmPassword: "",
     acceptedTerms: false,
-    image: null, // <-- add this
   });
 
   const [errors, setErrors] = useState({});
+  const [alerts, setAlerts] = useState({});
   const inputRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [closePrev, setClosePrev] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [logging ,setLogging] = useState(false);
   const [apiError, setApiError] = useState("");
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export default function SignupForm() {
         if (validate()) {
           setStep(step + 1);
         }
-      } else if (step === 5 && formData.acceptedTerms) {
+      } else if (step === 4 && formData.acceptedTerms) {
         await handleSubmit();
       } else {
         if (validate()) {
@@ -103,8 +104,7 @@ export default function SignupForm() {
 
  const handleSubmit = async (e) => {
   e?.preventDefault(); // optional since sometimes you don't pass event
-
-  setLoading(true);
+  setLogging(true)
   setApiError("");
 
   try {
@@ -116,7 +116,6 @@ export default function SignupForm() {
       form.append("username", formData.username);
       form.append("email", formData.email);
       form.append("password", formData.confirmPassword);
-      form.append("pfp", formData.image);
 
       options = {
         method: "POST",
@@ -139,7 +138,8 @@ export default function SignupForm() {
 
     if (response.ok) {
       console.log(res.message || "Success");
-      navigate("/login");
+      setAlerts("Profile Created Successfully")
+      setStep(step + 1);
     } else {
       console.error(res.message || "Registration failed");
       setApiError(res.message || "Registration failed");
@@ -148,14 +148,13 @@ export default function SignupForm() {
     console.error(err);
     setApiError("Something went wrong. Try again.");
   } finally {
-    setLoading(false);
+    setLogging(false)
     setFormData({
       username: "",
       email: "",
       password: "",
       confirmPassword: "",
       acceptedTerms: false,
-      image: null,
     });
     setPreview(null);
   }
@@ -458,96 +457,13 @@ export default function SignupForm() {
 
             {step === 4 && (
               <div>
-                <label className="block mb-2 text-sm text-gray-400 font-medium">
-                  Add a Display Picture (Optional)
-                </label>
-
-                {!preview && (
-                  <div
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const file = e.dataTransfer?.files?.[0];
-                      if (file && file.type.startsWith("image/")) {
-                        const imageUrl = URL.createObjectURL(file);
-                        setFormData((prev) => ({ ...prev, image: file }));
-                        setPreview(imageUrl);
-                      }
-                    }}
-                    onClick={() => dropRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
-                    className="w-full h-32 border-2 border-dashed border-gray-600 rounded-md flex items-center justify-center text-gray-400 hover:border-green-500 transition-all cursor-pointer mb-4"
-                  >
-                    Drag & Drop Image Here
-                  </div>
-                )}
-
-                {preview && (
-                  <div className="mb-4">
-                    <p className="text-gray-400 text-sm mb-1">Preview:</p>
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="w-32 h-32 mx-auto object-cover rounded-full border border-gray-600"
-                    />
-                  </div>
-                )}
-                <div className="flex items-center gap-4 mb-4">
-                  {preview ? (
-                    <input
-                      type="button"
-                      role="button"
-                      value="Remove"
-                      onClick={() => {
-                        setPreview(null);
-                        setFormData((prev) => ({ ...prev, image: null }));
-                      }}
-                      className="text-sm rounded-md p-2 text-black font-bold hover:bg-gray-400/70 bg-gray-400 "
-                    />
-                  ) : (
-                    <input
-                      type="file"
-                      ref={dropRef}
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (closePrev == false) {
-                          const file = e.target.files[0];
-                          if (file) {
-                            const imageUrl = URL.createObjectURL(file);
-                            setFormData((prev) => ({ ...prev, image: file }));
-                            setPreview(imageUrl);
-                          }
-                        }
-                      }}
-                      className="text-sm cursor-pointer text-gray-300 "
-                    />
-                  )}
-                </div>
-
-                <div className="flex justify-between mt-4">
-                  <ArrowLeft
-                    role="button"
-                    onClick={prevStep}
-                    className="w-16 h-9 bg-green-600 hover:bg-green-700 text-white rounded-md font-bold uppercase tracking-wide"
-                  />
-                  <button
-                    onClick={nextStep}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md font-bold"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 5 && (
-              <div>
                 <div className="flex items-start mb-4">
                   <input
                     type="checkbox"
                     name="acceptedTerms"
                     checked={formData.acceptedTerms}
                     onChange={handleChange}
-                    className="mt-1 mr-2"
+                    className="mt-1 mr-2 p-2"
                   />
                   <label className="text-sm text-gray-400">
                     I agree to the{" "}
@@ -567,24 +483,49 @@ export default function SignupForm() {
                     disabled={!formData.acceptedTerms}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md font-bold disabled:opacity-50"
                   >
-                    Finish
+                    {!logging ? <span>Signup</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
                   </button>
                 </div>
               </div>
             )}
+            {
+          step === 5 && (
+            <div className="flex flex-col items-center space-y-3 rounded-lg mt-10">
+              <div className="w-16 h-16  bg-green-600 rounded-full flex items-center justify-center mb-2">
+                <Check className="w-12 h-12  animate-pulse text-white" />
+              </div>
+              <p className="text-white text-center text-sm font-medium">{alerts}</p>
+              <button
+                onClick={() => {
+                      setLogging(true)
+                      navigate(`/login`)
+              }}
+                className="px-6 py-2 bg-green-700 text-slate-200 font-sans mt-4 hover:bg-green-600 rounded-md font-bold transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {!logging ? <span>Go to Login</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
+              </button>
+            </div>
+  )
+}
             {/* Navigation Links */}
-        <div className="flex mt-6 gap-2 items-center">
-          <p
-            onClick={() => navigate("/login")}
-            className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
-          >
-            Already a member? <span className="font-medium">Login</span>
-          </p>
-          <p
-            onClick={() => navigate("/")}
-            className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
-          >Take me home</p>
-        </div>
+
+        {step !== 5 && (
+  <div className="flex mt-6 gap-2 items-center">
+    <p
+      onClick={() => navigate("/login")}
+      className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer transition duration-200"
+    >
+      Already a member? <span className="font-medium">Login</span>
+    </p>
+    <p
+      onClick={() => navigate("/")}
+      className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer transition duration-200"
+    >
+      Take me home
+    </p>
+  </div>
+)}
+
           </motion.div>
         </AnimatePresence>
       </div>

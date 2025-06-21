@@ -142,9 +142,9 @@ export default function FuturisticCard({ pid, scrollRef }) {
 
       {loading && <Loader />}
 
-      <section className="min-h-screen flex flex-col bg-slate-900/90">
+      <section className="min-h-screen flex flex-col bg-black/90">
         {/* Top Bar */}
-        <div className="sticky top-0 h-12 border-b border-slate-700/60 backdrop-blur-md z-40">
+        <div className="sticky top-0 h-12 border-b border-slate-800/60 backdrop-blur-md z-40">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
             <div onClick={() => navigate(-1)} className="w-3 h-3 bg-red-400/80 rounded-full cursor-pointer"></div>
             <div className="w-3 h-3 bg-yellow-400/80 rounded-full"></div>
@@ -164,7 +164,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
         </div>
 
         {/* Blog Header */}
-        <div className="px-8 py-6 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/20">
+        <div className="px-8 py-6 border-b border-slate-800/60 bg-gradient-to-r from-slate-900/80 to-black/90">
           <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">{blog.title}</h3>
           <div className="flex flex-wrap gap-4 text-sm text-slate-400">
             <span className="flex items-center gap-2 px-2 border border-gray-600 rounded-xl"><Tag className="w-3 h-3" /> <span className="text-blue-300">{blog.category}</span></span>
@@ -179,7 +179,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
 
         {/* Blog Content */}
         <div className="flex flex-grow">
-          <div className="w-[3%] border-r bg-gradient-to-b from-slate-800/40 to-slate-900/60 border-slate-700/50">
+          <div className="w-[3%] border-r bg-gradient-to-b from-black/90 to-black/90 border-gray-800">
             <div className="flex flex-col items-center h-full pt-4 space-y-2">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="w-1 bg-slate-600/40 rounded-full" style={{ height: `${4 + (i % 3) * 2}px` }}></div>
@@ -187,7 +187,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
             </div>
           </div>
           <div className="w-[97%] px-8 py-3 text-base leading-7 tracking-wide text-slate-300">
-            <div className="max-w-none pb-16 text-sm xs:text-lg">{blog.content ? parse(blog.content) : null}</div>
+            <div className="max-w-none pb-16 font-sans text-sm xs:text-md">{blog.content ? parse(blog.content) : null}</div>
           </div>
         </div>
       </section>
@@ -210,8 +210,8 @@ export default function FuturisticCard({ pid, scrollRef }) {
       >
         <div className="
           flex items-center gap-2 xs:gap-3
-          backdrop-blur-2xl bg-slate-800/90
-          border border-slate-600/50
+          backdrop-blur-2xl bg-black
+          border border-slate-800/50
           rounded-xl xs:rounded-2xl
           p-1.5 xs:p-2
           shadow-2xl shadow-black/20
@@ -242,7 +242,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
               onClick={addLike}
               className="
                 group relative overflow-hidden
-                bg-slate-700/80
+                bg-black/80
                 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600
                 border border-slate-600/50 hover:border-blue-500/50
                 rounded-lg xs:rounded-xl
@@ -266,7 +266,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
             onClick={() => navigate(-1)}
             className="
               group relative overflow-hidden
-              bg-slate-700/80
+              bg-black/80
               hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600
               border border-slate-600/50 hover:border-red-500/50
               rounded-lg xs:rounded-xl
@@ -290,7 +290,7 @@ export default function FuturisticCard({ pid, scrollRef }) {
             onClick={copyLink}
             className="
               group relative overflow-hidden
-              bg-slate-700/80
+              bg-black/80
               hover:bg-gradient-to-r hover:from-green-600 hover:to-green-800
               border border-slate-600/50 hover:border-green-500/50
               rounded-lg xs:rounded-xl
