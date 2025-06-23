@@ -38,7 +38,7 @@ function TypedText({ strings = [], typeSpeed = 100, backSpeed = 50, loop = true 
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, stringIndex, done]);
 
-  return <span>{text}{!done && <span className="animate-pulse">|</span>}</span>;
+  return <span>{text}{!done && <span className="animate-pulse">_</span>}</span>;
 }
 
 export default TypedText;

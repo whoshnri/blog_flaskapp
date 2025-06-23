@@ -104,8 +104,12 @@ export default function RecentPosts({username, uuid}) {
                   </div>
 
                   <div className="flex space-x-4 text-gray-400">
-                    <span className="group/edit flex text-xs gap-1 items-center hover:text-white transition-colors cursor-pointer">
-                      <PencilIcon className="h-3 w-3" />Edit
+                    <span
+                      onClick={() => navigate(`/update/${username}/${uuid}/${post.pid}`)}
+
+                     className="group/edit flex text-xs gap-1 items-center hover:text-white transition-colors cursor-pointer">
+                      <PencilIcon
+                       className="h-3 w-3" />Edit
                     </span>
                     <span
                       onClick={() => navigate(`/read/${post.pid}`)}

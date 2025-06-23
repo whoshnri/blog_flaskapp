@@ -92,13 +92,13 @@ export default function SearchPage({ setLoading, scrollRef }) {
 
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
       {/* Filters */}
-      <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6">
+      <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6 ">
        <div className="flex justify-between">
-        <h1 className="text-3xl font-bold mb-2">Search for blogs</h1>
+        <h1 className="text-3xl font-bold mb-4">Browse blogs</h1>
 
-            <div className="cd:hidden z-20">
+            <div className="cd:hidden ">
               <MobileNav></MobileNav>
             </div>
            </div>

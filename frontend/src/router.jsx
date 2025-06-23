@@ -18,6 +18,7 @@ const SearchPage = lazy(() => import("./components/SearchPage"));
 const Hb = lazy(() => import("./Hb"));
 const ReadBlog = lazy(() => import("./components/ReadBlog"));
 const NewBlog = lazy(() => import("./components/NewBlog"));
+const Update = lazy(() => import("./components/UpdateBlog"));
 const LoginForm = lazy(() => import("./components/Users/Login"));
 const SignupForm = lazy(() => import("./components/Users/SignUp"));
 
@@ -116,6 +117,15 @@ const router = createBrowserRouter(
           element={
             <Suspense fallback={<Loader />}>
               <NewBlog />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="update/:username/:uuid/:pid/"
+          element={
+            <Suspense fallback={<Loader />}>
+              <Update />
             </Suspense>
           }
         />

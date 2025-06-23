@@ -10,6 +10,8 @@ import {
   LucideMenu
 } from "lucide-react";
 import bgImg from "../../assets/hehe.jpg"
+import logo from "../../assets/logo.svg"
+
 
 
 const FloatingNav2 = ({ scrollToTarget}) => {
@@ -41,7 +43,6 @@ const FloatingNav2 = ({ scrollToTarget}) => {
     return (
       <div className="font-mono">
         {/* Floating Toggle Button */}
-        {open && <div className="absolute h-[100vh] bg-black/70 -z-10 top-0 left-0 right-0 bottom-0"></div>}
         {!open && (
           <div
             onClick={() => setOpen(true)}
@@ -53,9 +54,10 @@ const FloatingNav2 = ({ scrollToTarget}) => {
         )}
 
         {/* Slide-out Panel */}
+        {open && <div className="z-10 fixed top-0 left-0 right-0 bottom-0 h-screen bg-black/50"></div>}
         <div
           ref={navRef}
-          className={`fixed top-0 right-0 h-screen w-[280px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-in-out
+          className={`fixed top-0 right-0 h-screen z-20 w-[280px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
         >
@@ -72,15 +74,13 @@ const FloatingNav2 = ({ scrollToTarget}) => {
 
           {/* Content */}
           <nav className="h-[calc(100%-4rem)] flex flex-col justify-between px-4 pb-6 overflow-y-auto">
-            <div className="space-y-6">
+            <div className="space-y-3">
               {/* Header */}
               <header className="grid items-center gap-3">
-                <div className="bg-white w-fit rounded-lg p-2 text-black font-extrabold text-xl">
-                  hb
-                </div>
                 <div className="flex flex-col leading-tight">
-                  <span className="text-md mt-4 font-extrabold text-gray-300">The HB Blog</span>
-                </div>
+                <img className="h-10 w-10" src={logo} alt="logo"/>
+            <span className="text-2xl mt-1 font-extrabold cursive text-white">Quilled</span>
+              </div>
               </header>
 
               {/* Overview */}

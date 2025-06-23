@@ -87,7 +87,7 @@ class Blog(db.Model):
     posted_on = db.Column(db.String, nullable=False)
 
 
-    def __init__(self, author, category, content, title, posted_on):
+    def __init__(self, author, category, content, title, posted_on, desc):
         self.author = author
         self.category = category
         self.content = content
@@ -95,12 +95,25 @@ class Blog(db.Model):
         self.posted_on = posted_on
         self.created_at = datetime.now(timezone.utc)
         self.pid = slugify(title)
-        self.desc = self.generate_description(content)
+        self.desc = desc
 
 
-    def generate_description(self, content):
-        words = self.content.strip().split()
-        return " ".join(words[:50]) + "..." if len(words) > 50 else " ".join(words[:-1]) + "..."
+
+
+class Comments(db.Model):
+    __tablename__ = 'comment'
+    id = db.Column(db.Integer, primary_key=True)
+    blog_pid = db.Column(db.String)
+    comment = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(20), nullable=False)
+    timestamp = db.Column(db.String, nullable=False)
+
+    def __init__(self, blog_pid,name, timestamp, comment):
+        self.blog_pid = blog_pid
+        self.name = name
+        self.timestamp = timestamp
+        self.comment = comment
+
 
 
 class InteractionTracker(db.Model):

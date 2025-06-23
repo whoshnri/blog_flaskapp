@@ -1,31 +1,96 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Heart, ThumbsUp, X, Tag, User, Clock, CopyIcon, CheckLine } from "lucide-react";
+import { Eye, Heart, X, Tag, User, Clock, Copy, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from './Loader'
+import Comments from './Comments'
 import { AnimatePresence, motion } from "framer-motion";
-import { useRef } from "react";
 const API = import.meta.env.VITE_API_BASE_URL;
 
-// Simple HTML Parser
-const parse = (html) => <div dangerouslySetInnerHTML={{ __html: html }} />;
+// Enhanced HTML Parser with dark theme styling
+const parse = (html) => {
+  // Create a temporary div to process the HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
 
-export default function FuturisticCard({ pid, scrollRef }) {
+  // Apply dark theme styles to common elements
+  const processNode = (node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      // Force readable text colors
+      if (['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th'].includes(node.tagName.toLowerCase())) {
+        const currentColor = window.getComputedStyle(node).color;
+        if (currentColor === 'rgb(0, 0, 0)' || currentColor === 'black' || !currentColor || currentColor === 'rgba(0, 0, 0, 0)') {
+          node.style.color = '#e2e8f0'; // slate-200
+        }
+      }
+
+      // Style headings
+      if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName.toLowerCase())) {
+        node.style.color = '#f1f5f9'; // slate-100
+        node.style.fontWeight = '600';
+        node.style.marginTop = '1.5rem';
+        node.style.marginBottom = '1rem';
+      }
+
+      // Style links
+      if (node.tagName.toLowerCase() === 'a') {
+        node.style.color = '#60a5fa'; // blue-400
+        node.style.textDecoration = 'underline';
+      }
+
+      // Style code elements
+      if (node.tagName.toLowerCase() === 'code') {
+        node.style.backgroundColor = '#1e293b'; // slate-800
+        node.style.color = '#94a3b8'; // slate-400
+        node.style.padding = '0.125rem 0.25rem';
+        node.style.borderRadius = '0.25rem';
+        node.style.fontSize = '0.875rem';
+      }
+
+      // Style pre elements
+      if (node.tagName.toLowerCase() === 'pre') {
+        node.style.backgroundColor = '#0f172a'; // slate-900
+        node.style.color = '#cbd5e1'; // slate-300
+        node.style.padding = '1rem';
+        node.style.borderRadius = '0.5rem';
+        node.style.overflow = 'auto';
+        node.style.border = '1px solid #334155'; // slate-700
+      }
+
+      // Style blockquotes
+      if (node.tagName.toLowerCase() === 'blockquote') {
+        node.style.borderLeft = '4px solid #475569'; // slate-600
+        node.style.paddingLeft = '1rem';
+        node.style.color = '#94a3b8'; // slate-400
+        node.style.fontStyle = 'italic';
+      }
+
+      // Process child nodes
+      Array.from(node.childNodes).forEach(processNode);
+    }
+  };
+
+  Array.from(tempDiv.childNodes).forEach(processNode);
+
+  return <div
+    dangerouslySetInnerHTML={{ __html: tempDiv.innerHTML }}
+    className="prose prose-invert max-w-none prose-headings:text-slate-100 prose-p:text-slate-200 prose-a:text-blue-400 prose-strong:text-slate-100 prose-code:text-slate-300 prose-pre:bg-slate-900"
+  />;
+};
+
+export default function MinimalistBlogViewer({ pid, scrollRef }) {
   const [blog, setBlog] = useState({});
-  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [liked, hasLiked] = useState(false);
   const [showFooter, setShowFooter] = useState(false);
   const [scrollPercent, setScrollPercent] = useState(0);
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href)
       .then(() => {
         setCopied(true);
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
+        setTimeout(() => setCopied(false), 2000);
       })
       .catch(err => console.error("Failed to copy: ", err));
   };
@@ -40,8 +105,6 @@ export default function FuturisticCard({ pid, scrollRef }) {
         getBlog();
       }
     };
-
-
 
     setLoading(true);
     addViewAndFetch();
@@ -67,21 +130,15 @@ export default function FuturisticCard({ pid, scrollRef }) {
     const handleScroll = () => {
       setShowFooter(true);
       if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        setShowFooter(false);
-      }, 3000);
+      timeoutId = setTimeout(() => setShowFooter(false), 3000);
     };
 
     container.addEventListener("scroll", handleScroll);
-
     return () => {
       container.removeEventListener("scroll", handleScroll);
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
-
-
-
 
   const getBlog = async () => {
     try {
@@ -104,10 +161,8 @@ export default function FuturisticCard({ pid, scrollRef }) {
       if (res.status === 200) {
         hasLiked(true);
         getBlog();
-        alert("Liked!");
       } else if (res.status === 403) {
         hasLiked(true);
-        alert(data.message);
       }
     } catch (err) {
       console.error("Like error:", err);
@@ -117,14 +172,11 @@ export default function FuturisticCard({ pid, scrollRef }) {
   const removeLike = async () => {
     try {
       const res = await fetch(`${API}/remove/likes/${pid}`, { method: 'PATCH' });
-      const data = await res.json();
       if (res.status === 200) {
-        alert("Like removed");
         getBlog();
         hasLiked(false);
       } else {
         hasLiked(false);
-        alert(data.message);
       }
     } catch (err) {
       console.error("Remove like error:", err);
@@ -132,195 +184,110 @@ export default function FuturisticCard({ pid, scrollRef }) {
   };
 
   return (
-    <>
-      {/* Background Pulses */}
-      <div className="absolute inset-0 overflow-hidden -z-10 scale-90 xs:scale-100">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
+    <div className="min-h-screen bg-black text-slate-200">
       {loading && <Loader />}
 
-      <section className="min-h-screen flex flex-col bg-black/90">
-        {/* Top Bar */}
-        <div className="sticky top-0 h-12 border-b border-slate-800/60 backdrop-blur-md z-40">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-            <div onClick={() => navigate(-1)} className="w-3 h-3 bg-red-400/80 rounded-full cursor-pointer"></div>
-            <div className="w-3 h-3 bg-yellow-400/80 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-400/80 rounded-full"></div>
+      {/* Minimal Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-slate-800 z-50">
+        <div
+          className="h-full bg-gradient-to-r from-slate-600 to-slate-400 transition-all duration-150 ease-out"
+          style={{ width: `${scrollPercent}%` }}
+        />
+      </div>
+
+      {/* Header */}
+      <header className="border-b border-slate-600 bg-black/95 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-6 pt-8 py-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-100 mb-2 leading-tight">
+            {blog.title}
+          </h1>
+
+          <div className="flex flex-wrap gap-4 text-sm text-slate-400 mb-2">
+            <span className="flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              <span className="text-slate-300">{blog.category}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              <span className="text-slate-300">{blog.author}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-slate-300">{blog.created}</span>
+            </span>
           </div>
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="w-1 bg-slate-600/60 rounded-sm" style={{ height: `${8 + i * 2}px` }}></div>
-            ))}
-          </div>
-          <div className="absolute bottom-0 w-full h-1 z-50">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 via-slate-700 to-blue-700 transition-all duration-150 ease-out rounded-r-full"
-              style={{ width: `${scrollPercent}%` }}
-            ></div>
+
+          <div className="flex gap-6 text-slate-400 text-sm">
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span>{blog.views}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <Heart className="w-4 h-4" />
+              <span>{blog.likes}</span>
+            </span>
           </div>
         </div>
+      </header>
 
-        {/* Blog Header */}
-        <div className="px-8 py-6 border-b border-slate-800/60 bg-gradient-to-r from-slate-900/80 to-black/90">
-          <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">{blog.title}</h3>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-            <span className="flex items-center gap-2 px-2 border border-gray-600 rounded-xl"><Tag className="w-3 h-3" /> <span className="text-blue-300">{blog.category}</span></span>
-            <span className="flex items-center gap-2 px-2 border border-gray-600 rounded-xl"><Clock className="w-3 h-3" /> <span className="text-purple-300">{blog.created}</span></span>
-            <span className="flex items-center gap-2 px-2 border border-gray-600 rounded-xl"><User className="w-3 h-3" /> <span className="text-indigo-300">{blog.author}</span></span>
+      {/* Content */}
+      <main className="max-w-4xl mx-auto px-6 py-8 pb-32">
+        <article className="prose prose-invert prose-lg max-w-none mb-12">
+          <div className="text-slate-200 leading-relaxed">
+            {blog.content ? parse(blog.content) : null}
           </div>
-          <div className="flex mt-4 gap-6 text-slate-400 text-sm items-center">
-            <span className="flex gap-2 items-center bg-slate-800/40 px-3 py-1 rounded-full border border-slate-600/30"><Eye className="w-4 h-4 stroke-blue-400" /> <span>{blog.views}</span></span>
-            <span className="flex gap-2 items-center bg-slate-800/40 px-3 py-1 rounded-full border border-slate-600/30"><Heart className="w-4 h-4 fill-red-400 stroke-red-400" /> <span>{blog.likes}</span></span>
-          </div>
-        </div>
+        </article>
 
-        {/* Blog Content */}
-        <div className="flex flex-grow">
-          <div className="w-[3%] border-r bg-gradient-to-b from-black/90 to-black/90 border-gray-800">
-            <div className="flex flex-col items-center h-full pt-4 space-y-2">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="w-1 bg-slate-600/40 rounded-full" style={{ height: `${4 + (i % 3) * 2}px` }}></div>
-              ))}
-            </div>
-          </div>
-          <div className="w-[97%] px-8 py-3 text-base leading-7 tracking-wide text-slate-300">
-            <div className="max-w-none pb-16 font-sans text-sm xs:text-md">{blog.content ? parse(blog.content) : null}</div>
-          </div>
-        </div>
-      </section>
+        <Comments pid={pid} />
+      </main>
 
-      <div className="fixed bottom-3 left-0 right-0 flex justify-center items-end z-50">
-  <AnimatePresence>
-    {/* Floating Footer Interaction */}
-    {showFooter && (
-      <motion.div
-        initial={{ y: "100%", opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: "100%", opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="
-          w-fit mx-auto
-          scale-50 xs:scale-60 sm:scale-75 md:scale-85 lg:scale-90 xl:scale-95 2xl:scale-100
-          transition-all duration-500 ease-out
-          px-2 xs:px-3 sm:px-4
-        "
-      >
-        <div className="
-          flex items-center gap-2 xs:gap-3
-          backdrop-blur-2xl bg-black
-          border border-slate-800/50
-          rounded-xl xs:rounded-2xl
-          p-1.5 xs:p-2
-          shadow-2xl shadow-black/20
-          min-w-0
-        ">
-          {liked ? (
-            <button
-              onClick={removeLike}
-              className="
-                group relative overflow-hidden
-                bg-gradient-to-r from-rose-600 to-pink-600
-                hover:from-rose-500 hover:to-pink-500
-                rounded-lg xs:rounded-xl
-                px-3 xs:px-4 sm:px-6
-                py-2 xs:py-2.5 sm:py-3
-                transition-all transform hover:scale-105 active:scale-95
-                min-w-0 flex-shrink-0
-              "
+      {/* Floating Action Bar */}
+      <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50">
+        <AnimatePresence>
+          {showFooter && (
+            <motion.div
+              initial={{ y: 100, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 100, opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex items-center gap-2 bg-slate-900/95 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-3 shadow-xl"
             >
-              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-1.5 xs:gap-2">
-                <Heart className="w-4 h-4 xs:w-5 xs:h-5 text-white fill-current flex-shrink-0" />
-                <span className="font-semibold text-white text-xs xs:text-sm whitespace-nowrap">Liked</span>
-              </div>
-            </button>
-          ) : (
-            <button
-              onClick={addLike}
-              className="
-                group relative overflow-hidden
-                bg-black/80
-                hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600
-                border border-slate-600/50 hover:border-blue-500/50
-                rounded-lg xs:rounded-xl
-                px-3 xs:px-4 sm:px-6
-                py-2 xs:py-2.5 sm:py-3
-                transition-all transform hover:scale-105 active:scale-95
-                min-w-0 flex-shrink-0
-              "
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-1.5 xs:gap-2">
-                <Heart className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
-                <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Like</span>
-              </div>
-            </button>
+              <button
+                onClick={liked ? removeLike : addLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  liked
+                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-red-400'
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                {liked ? 'Liked' : 'Like'}
+              </button>
+
+              <div className="w-px h-6 bg-slate-700" />
+
+              <button
+                onClick={copyLink}
+                disabled={copied}
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-400 transition-all disabled:opacity-50"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copied' : 'Share'}
+              </button>
+
+              <div className="w-px h-6 bg-slate-700" />
+
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-300 transition-all"
+              >
+                <X className="w-4 h-4" />
+                Close
+              </button>
+            </motion.div>
           )}
-
-          <div className="w-px h-6 xs:h-8 bg-slate-600/50 flex-shrink-0"></div>
-
-          <button
-            onClick={() => navigate(-1)}
-            className="
-              group relative overflow-hidden
-              bg-black/80
-              hover:bg-gradient-to-r hover:from-red-600 hover:to-rose-600
-              border border-slate-600/50 hover:border-red-500/50
-              rounded-lg xs:rounded-xl
-              px-3 xs:px-4 sm:px-6
-              py-2 xs:py-2.5 sm:py-3
-              transition-all transform hover:scale-105 active:scale-95
-              min-w-0 flex-shrink-0
-            "
-          >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center gap-1.5 xs:gap-2">
-              <X className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
-              <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Close</span>
-            </div>
-          </button>
-
-          <div className="w-px h-6 xs:h-8 bg-slate-600/50 flex-shrink-0"></div>
-
-          <button
-            disabled={copied}
-            onClick={copyLink}
-            className="
-              group relative overflow-hidden
-              bg-black/80
-              hover:bg-gradient-to-r hover:from-green-600 hover:to-green-800
-              border border-slate-600/50 hover:border-green-500/50
-              rounded-lg xs:rounded-xl
-              px-3 xs:px-4 sm:px-6
-              py-2 xs:py-2.5 sm:py-3
-              transition-all transform hover:scale-105 active:scale-95
-              min-w-0 flex-shrink-0
-            "
-          >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center gap-1.5 xs:gap-2">
-              {copied ? (
-                <CheckLine className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
-              ) : (
-                <CopyIcon className="w-4 h-4 xs:w-5 xs:h-5 text-slate-400 group-hover:text-white flex-shrink-0" />
-              )}
-              <span className="font-semibold text-slate-300 group-hover:text-white text-xs xs:text-sm whitespace-nowrap">Share</span>
-            </div>
-          </button>
-        </div>
-
-        <div className="absolute -top-1.5 xs:-top-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/60 rounded-full animate-pulse"></div>
-          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/40 rounded-full animate-pulse delay-75"></div>
-          <div className="w-0.5 h-0.5 xs:w-1 xs:h-1 bg-blue-400/60 rounded-full animate-pulse delay-150"></div>
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
-    </>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

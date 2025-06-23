@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useParams } from "react-router-dom";
+import { Editor } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -47,37 +47,71 @@ const IconBtn = ({ icon, onClick, active, title }) => (
   </button>
 );
 
-export default function CreateBlogCard({ username, uuid }) {
+export default function UpdateBlog() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [editor, setEditor] = useState();
   const [content, setContent] = useState("");
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const {pid, uuid, username} = useParams()
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ codeBlock: false }),
-      Underline,
-      TextStyle,
-      Color,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      Link.configure({ openOnClick: true, autolink: true, linkOnPaste: true }),
-      FontFamily.configure({ types: ["textStyle"] }),
-      Subscript,
-      Superscript,
-    ],
-    content: "<p>Write your blog content here...</p>",
-    onUpdate: ({ editor }) => {
-      setContent(editor.getHTML());
-    },
-    editorProps: {
-      attributes: {
-        class: "prose prose-invert max-w-none focus:outline-none",
-      },
-    },
-  });
+const createEditor = (stuff) => {
+const newEditor = new Editor({
+            extensions: [
+              StarterKit.configure({ codeBlock: false }),
+              Underline,
+              TextStyle,
+              Color,
+              TextAlign.configure({ types: ["heading", "paragraph"] }),
+              Link.configure({ openOnClick: true, autolink: true, linkOnPaste: true }),
+              FontFamily.configure({ types: ["textStyle"] }),
+              Subscript,
+              Superscript,
+            ],
+            content: stuff,
+            onUpdate: ({ editor }) => {
+              setContent(editor.getHTML());
+            },
+            editorProps: {
+              attributes: {
+                class: "prose prose-invert max-w-none focus:outline-none",
+              },
+            },
+          });
+    return newEditor
+}
+
+useEffect(() => {
+    //create editor
+
+  const getBlog = async () => {
+    setLoading(true); // <-- ensure loading starts here
+    try {
+      const response = await fetch(`${API}/get/blog/${pid}`);
+      const res = await response.json();
+      if (response.ok) {
+        setTitle(res.title);
+        setContent(res.content);
+        setCategory(res.category);
+        const newEditor = createEditor(res.content)
+        setEditor(newEditor)
+        setLoading(false);
+      } else {
+        console.error("Unexpected status:", response.status, res.message);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  getBlog(); // run once on mount
+}, []); // depends on pid
+
 
   const categories = [
     "Select Category",
@@ -98,24 +132,29 @@ export default function CreateBlogCard({ username, uuid }) {
   const handlePublish = async () => {
     const token = localStorage.getItem("token");
     setLoading(true);
-    const data = { username, category, content, title };
+    const data = {username, category, content, title };
     try {
-      const response = await fetch(`${API}/new/blog`, {
-        method: "POST",
+      const response = await fetch(`${API}/update/${pid}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
+      console.log(data)
       const res = await response.json();
-      console.log(response.status === 201 ? res.message : res.error);
-      discard();
+      console.log(response.status === 201 ? res.message : res.message);
+      if (response.ok){
+        alert("Update saved!")
+      }
     } catch (error) {
       console.log("Network error:", error);
+        alert("Update failed!")
     }
     setLoading(false);
-    navigate(`/dashboard/${username}/${uuid}`);
+    setShowPublishConfirm(false)
+    // navigate(`/dashboard/${username}/${uuid}`);
   };
 
   return (
@@ -132,7 +171,7 @@ export default function CreateBlogCard({ username, uuid }) {
               className="rounded-xl p-2 bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 hover:-translate-x-1 shadow-lg"
             />
             <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text font-sans text-transparent">
-              Create New Blog Post
+              Tweak Blog Post
             </h3>
           </div>
           <Trash2
@@ -176,7 +215,7 @@ export default function CreateBlogCard({ username, uuid }) {
 
             {editor && (
               <div className="space-y-3">
-                <div className="flex sticky top-16 backdrop-blur-3xl z-40  overflow-x-auto gap-2 bg-slate-900 p-3 rounded-xl border border-slate-700 text-white">
+                <div className="flex sticky top-16 backdrop-blur-3xl z-40 overflow-x-auto gap-2 bg-slate-900 p-3 rounded-xl border border-slate-700 text-white">
                   <IconBtn icon={<Bold size={18} />} title="Bold" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
                   <IconBtn icon={<Italic size={18} />} title="Italic" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
                   <IconBtn icon={<UnderlineIcon size={18} />} title="Underline" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} />
@@ -217,18 +256,17 @@ export default function CreateBlogCard({ username, uuid }) {
                 </div>
 
                 <div className="prose prose-invert max-w-none bg-slate-800/60 p-4 rounded-xl border border-slate-700">
-                  <EditorContent editor={editor} />
+                  {<EditorContent editor={editor} />}
                 </div>
               </div>
             )}
 
-            <div className="flex mt-3 justify-between items-center gap-4 ">
-              <button onClick={() => console.log("Draft saved")} className="flex-1 bg-slate-700/80 hover:bg-slate-600/80 rounded-xl py-3 font-semibold">Save Draft</button>
+            <div className="flex my-3 justify-between items-center gap-4 ">
               <button onClick={() => setShowPublishConfirm(true)} className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl py-3 font-semibold flex items-center justify-center">
                 {loading ? (
                   <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin" />
                 ) : (
-                  "Publish"
+                  "Edit Post"
                 )}
               </button>
             </div>
@@ -240,11 +278,11 @@ export default function CreateBlogCard({ username, uuid }) {
       {showDiscardConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
           <div className="w-full max-w-md bg-slate-900 p-6 rounded-xl border border-slate-700 animate-scaleIn text-slate-200">
-            <h2 className="text-xl font-bold text-red-400 mb-2">Discard Draft?</h2>
-            <p className="text-sm text-slate-400 mb-4">Are you sure you want to discard your changes? This action cannot be undone.</p>
+            <h2 className="text-xl font-bold text-red-400 mb-2">Discard changes?</h2>
+            <p className="text-sm text-slate-400 mb-4">Are you sure you want to discard your changes and exit?</p>
             <div className="flex justify-end gap-4">
               <button onClick={() => setShowDiscardConfirm(false)} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg">Cancel</button>
-              <button onClick={() => { discard(); setShowDiscardConfirm(false); }} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg">Discard</button>
+              <button onClick={() => { setShowDiscardConfirm(false);navigate(`/dashboard/${username}/${uuid}`) }} className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg">Discard</button>
             </div>
           </div>
         </div>
@@ -254,11 +292,15 @@ export default function CreateBlogCard({ username, uuid }) {
       {showPublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
           <div className="w-full max-w-md bg-slate-900 p-6 rounded-xl border border-slate-700 animate-scaleIn text-slate-200">
-            <h2 className="text-xl font-bold text-blue-400 mb-2">Confirm Publish?</h2>
-            <p className="text-sm text-slate-400 mb-4">Are you sure you want to publish this blog post? It will be visible to the public.</p>
+            <h2 className="text-xl font-bold text-blue-400 mb-2">Confirm Edit?</h2>
+            <p className="text-sm text-slate-400 mb-4">Are you sure you want to update this blog post? You changes will be visible to the public.</p>
             <div className="flex justify-end gap-4">
               <button onClick={() => setShowPublishConfirm(false)} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg">Cancel</button>
-              <button onClick={handlePublish} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg">Publish</button>
+              <button onClick={handlePublish} className="px-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl py-3 font-semibold flex items-center justify-center">{loading ? (
+                  <span className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin" />
+                ) : (
+                  "Proceed"
+                )}</button>
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ function getRandomThree(arr) {
   return shuffled.slice(0, 7);
 }
 
-function HeroSection() {
+function HeroSection(blogRef) {
   const [isClient, setIsClient] = useState(false);
   const [featured, setFeatured] = useState([])
   // const featuredBlogs = getRandomThree(featured);
@@ -51,18 +51,13 @@ function HeroSection() {
   const mappings = [3, 2, 2, 3, 3, 2]
 
 
-  return !noBlogs && !loading ? (
-    <section className="bg-[#0f0f0f] w-full xs:py-8 relative min-h-screen py-24 px-4 overflow-hidden">
+  return (
+    <div
+    >
+    {!noBlogs && !loading ? (
+    <section
+     className="bg-[#0f0f0f] w-full xs:py-8 relative min-h-screen py-8 px-4 overflow-hidden">
       <div className="mx-auto">
-        {/* Header */}
-          <div className=" cursive text-5xl font-black text-white mb-12">
-            <TypedText
-              strings={["The HB Blog", "Sharing Stories", "The HB Blog"]}
-              backSpeed={70}
-              typeSpeed={130}
-              loop={false}
-            />
-          </div>
         <div className="flex items-center justify-center gap-3 mb-12">
           <Sparkles className="w-6 h-6 text-blue-400 animate-pulse" />
           <h2 className="text-2xl font-bold text-white">New Stuff</h2>
@@ -94,17 +89,9 @@ function HeroSection() {
       </div>
     </section>
   ) : noBlogs && !loading ? (
-    <section className="bg-[#0f0f0f] w-full xs:py-8 relative min-h-screen py-24 px-4 overflow-hidden">
+    <section
+     className="bg-[#0f0f0f] w-full xs:py-8 relative py-8 px-4 overflow-hidden">
       <div className="mx-auto">
-        {/* Header */}
-          <div className=" cursive text-5xl font-black text-white mb-12">
-            <TypedText
-              strings={["The HB Blog", "Sharing Stories", "The HB Blog"]}
-              backSpeed={70}
-              typeSpeed={130}
-              loop={false}
-            />
-          </div>
         <div className="flex items-center justify-center gap-3 mb-12">
           <Sparkles className="w-6 h-6 text-blue-400 animate-pulse" />
           <h2 className="text-2xl font-bold text-white">Today's Picks</h2>
@@ -119,24 +106,20 @@ function HeroSection() {
       </div>
     </section>
   ): (
-    <section className="bg-[#0f0f0f] w-full xs:py-8 relative min-h-screen py-24 px-4 overflow-hidden">
-          <div className=" cursive text-5xl font-black text-white mb-12">
-            <TypedText
-              strings={["The HB Blog", "Sharing Stories", "The HB Blog"]}
-              backSpeed={70}
-              typeSpeed={130}
-              loop={false}
-            />
-          </div>
+    <section
+    className="bg-[#0f0f0f] w-full xs:py-8 relative py-8 px-4 overflow-hidden">
         <div className="flex items-center justify-center gap-3 mb-12">
           <Sparkles className="w-6 h-6 text-blue-400 animate-pulse" />
           <h2 className="text-2xl font-bold text-white">Today's Picks</h2>
           <Sparkles className="w-6 h-6 text-blue-400 animate-pulse delay-500" />
         </div>
-    <div className=" mx-auto w-16 h-16 mt-[30%]  animate-spin border-2 rounded-full border-t-transparent border-white"></div>
+    <div className=" mx-auto w-16 h-16 mt-[10%]  animate-spin border-2 rounded-full border-t-transparent border-white"></div>
     <p className="mx-auto w-fit mt-3 text-white font-sans">Loading content . . .</p>
     </section>
   )
+}
+</div>
+)
 }
 
 export default HeroSection;

@@ -1,4 +1,4 @@
-from models import User, Blog, app, db, hash_password, verify_password, cache, InteractionTracker
+from models import User, Blog,Comments, app, db, hash_password, verify_password, cache, InteractionTracker
 from sqlalchemy import func
 from flask import jsonify, request,send_from_directory
 from tools import timestamp, time_difference, generate_opaque_id,add_to_sheet,add_to_sheet_one
@@ -6,6 +6,13 @@ from datetime import datetime
 from models import create_access_token, get_jwt_identity, jwt_required, TokenBlocklist, get_jwt
 from slugify import slugify
 import os
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
+
+
+def generate_description(content):
+    words = content.strip().split()
+    return " ".join(words[:50]) + "..." if len(words) > 50 else " ".join(words[:-1]) + "..."
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
@@ -249,7 +256,8 @@ def add_blog():
             category=data["category"],
             content=data["content"],
             title=data["title"],
-            posted_on=timestamp()
+            posted_on=timestamp(),
+            desc=generate_description(data["content"])
         )
         db.session.add(new_blog)
         db.session.commit()
@@ -257,6 +265,81 @@ def add_blog():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+
+
+#updating blogs
+@app.route("/update/<string:id>", methods=['PATCH'])
+@jwt_required()
+def patch_blog(id):
+    data = request.get_json()
+    token_uuid = get_jwt_identity()
+
+    author = data.get("username", "")
+    title = data.get("title", "")
+    content = data.get("content", "")
+    category = data.get("category", "")
+
+    # Step 1: Confirm that this author has a blog with that ID
+    blog = Blog.query.filter_by(pid=id, author=author).first()
+    if not blog:
+        return jsonify({"message": "Blog not found for this author", "status": 404}), 404
+
+    # Step 2: Get the UUID of the author from the User table
+    user = User.query.filter_by(username=author).first()
+    if not user:
+        return jsonify({"message": "Author not found in User table", "status": 404}), 404
+
+    # Step 3: Confirm the UUID matches the token UUID
+    if user.uuid != token_uuid:
+        return jsonify({"message": "Unauthorized: UUID mismatch", "status": 403}), 403
+
+    # Step 4: Apply updates
+    try:
+        if content:
+            blog.content = content
+            blog.desc= generate_description(content)
+
+        if title:
+            blog.title = title
+        if category:
+            blog.category = category
+
+
+        db.session.commit()
+        return jsonify({"message": "Post Updated", "status": 200}), 200
+
+    except Exception as e:
+        return jsonify({
+            "message": str(e),
+            "status": 500
+        }), 500
+
+
+#getting to comments
+@app.route("/comments/<string:pid>", methods=['GET'])
+def get_comments(pid):
+    comments = Comments.query.filter_by(blog_pid=pid).all()
+    return jsonify({
+        "status": 200,
+        "comments": [{
+            "comment": c.comment,
+            "name": c.name,
+            "timestamp": c.timestamp
+        } for c in comments]
+    }), 200
+
+
+@app.route("/add/comment/<string:pid>", methods=["POST"])
+def add_comment(pid):
+    data = request.get_json()
+    try:
+        db.session.add(Comments(blog_pid=pid, comment=data["comment"],name=data["name"], timestamp=timestamp()))
+        db.session.commit()
+        return jsonify({"message" : "Comment added!"}), 201
+    except Exception as e:
+        return jsonify({"message" : f"An error {str(e)} occured"}), 500
+
+
 
 
 # ────────────────────────────────
@@ -422,6 +505,4 @@ def init_db():
 # ────────────────────────────────
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

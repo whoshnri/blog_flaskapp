@@ -2,6 +2,8 @@ import React from "react";
 import { Home, User, Star, BellPlus, Search, BookPlus } from "lucide-react"; // mock icons
 import {useNavigate} from "react-router-dom"
 import bgImg from "../../assets/hehe.jpg"
+import logo from "../../assets/logo.svg"
+
 
 
 const BlogSidebar = ({ scrollToTarget}) => {
@@ -12,14 +14,12 @@ const BlogSidebar = ({ scrollToTarget}) => {
       {/* Top Content */}
       <div className="space-y-6">
         {/* Header */}
-        <header className="grid items-center gap-3 px-2">
-          <div className="bg-white w-fit rounded-lg p-2 text-black font-extrabold text-xl">
-            hb
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-lg mt-4 font-extrabold text-gray-300">The HB Blog</span>
-          </div>
-        </header>
+        <header className="grid px-3 items-center gap-3 mt-4">
+                <div className="flex flex-col leading-tight">
+                <img className="h-16 w-16" src={logo} alt="logo"/>
+            <span className="text-2xl mt-1 font-extrabold cursive text-white">Quilled</span>
+              </div>
+              </header>
 
         {/* Overview Section */}
         <div className="space-y-2 pt-2">
