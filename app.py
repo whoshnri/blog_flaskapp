@@ -23,25 +23,39 @@ BOT_USER_AGENTS = re.compile(
 @app.before_request
 def prerender_if_bot():
     user_agent = request.headers.get("User-Agent", "")
-    is_bot = BOT_USER_AGENTS.search(user_agent)
     is_html = "text/html" in request.headers.get("Accept", "")
+    is_bot = BOT_USER_AGENTS.search(user_agent)
 
-    # Skip API, static files, and assets
+    print("🔥 Incoming Request")
+    print("User-Agent:", user_agent)
+    print("Is Bot?", is_bot is not None)
+    print("Is HTML?", is_html)
+    print("URL:", request.url)
+
     if request.path.startswith("/api") or request.path.startswith("/static") or "." in request.path:
+        print("Skipping (API/static)")
         return
 
     if is_bot and is_html and request.method == "GET":
         prerender_url = f"https://service.prerender.io{request.url}"
+        print("🔁 Sending to Prerender:", prerender_url)
+
         try:
             prerender_response = requests.get(
                 prerender_url,
                 headers={"X-Prerender-Token": PRERENDER_TOKEN},
                 timeout=5
             )
-            return Response(prerender_response.content, status=prerender_response.status_code, content_type=prerender_response.headers.get("Content-Type", "text/html"))
+            print("✅ Prerender response:", prerender_response.status_code)
+
+            return Response(
+                prerender_response.content,
+                status=prerender_response.status_code,
+                content_type=prerender_response.headers.get("Content-Type", "text/html")
+            )
         except Exception as e:
-            print("Prerender fetch failed:", str(e))
-            return None  # fallback to normal route
+            print("❌ Prerender fetch failed:", str(e))
+            return None
 
 
 def generate_description(content):
