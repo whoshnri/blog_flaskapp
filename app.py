@@ -77,12 +77,15 @@ def prerender_if_bot():
 
 
     if is_bot and is_html:
-        # Construct proper Prerender URL
-        parsed = urlparse(request.url)
-        prerender_url = urljoin(
-            PRERENDER_SERVICE,
-            f"{parsed.scheme}://{parsed.netloc}{parsed.path}{'?' + parsed.query if parsed.query else ''}"
-        )
+        # Get the complete URL with protocol and domain
+        full_url = request.url
+
+        # URL encode the target URL
+        encoded_url = quote(full_url, safe=':/?&=')
+
+        # Construct the final Prerender URL
+        prerender_url = f"{PRERENDER_SERVICE.rstrip('/')}/{encoded_url}"
+
         print(f"🤖 Bot detected: {user_agent}")
         print(f"📄 HTML requested: {is_html}")
         print(f"🔗 Final Prerender URL: {prerender_url}")
@@ -92,9 +95,9 @@ def prerender_if_bot():
                 prerender_url,
                 headers={
                     "X-Prerender-Token": PRERENDER_TOKEN,
-                    "User-Agent": user_agent  # Forward original UA
+                    "User-Agent": user_agent
                 },
-                timeout=10,
+                timeout=25,  # Increased timeout for Render
                 allow_redirects=False
             )
 
@@ -104,15 +107,18 @@ def prerender_if_bot():
                     status=response.status_code,
                     content_type=response.headers.get("Content-Type", "text/html"),
                     headers={
-                        "Cache-Control": "public, max-age=3600",
+                        "Cache-Control": "public, max-age=300",
                         "Vary": "User-Agent"
                     }
                 )
 
         except requests.Timeout:
-            print(f"⌛ Prerender timeout for {request.url}")
+            print(f"⌛ Prerender timeout for {prerender_url}")
+            # Optional: Serve cached version if available
+            return None
         except Exception as e:
-            print(f"⚠️ Prerender error for {request.url}: {str(e)}")
+            print(f"⚠️ Prerender error: {str(e)}")
+            return None
 
     return None  # Continue with normal request
 
