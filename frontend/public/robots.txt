@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quilled-5su6.onrender.com/sitemap.xml

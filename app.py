@@ -26,7 +26,8 @@ def prerender_if_bot():
     accept_header = request.headers.get("Accept", "")
 
     is_bot = BOT_USER_AGENTS.search(user_agent)
-    is_html = not accept_header or "text/html" in accept_header
+    is_html = "text/html" in accept_header or "*/*" in accept_header or not accept_header
+
 
     print("🔥 Incoming Request")
     print("User-Agent:", user_agent)
