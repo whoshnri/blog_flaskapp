@@ -16,15 +16,17 @@ migrate = Migrate(app, db)
 PRERENDER_TOKEN = "gZw9IBA49cHU62VWwxDJ"
 
 BOT_USER_AGENTS = re.compile(
-    r"googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|xbot|x-bot|rogerbot|linkedinbot|linkedin|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|redditbot|applebot|whatsapp|telegrambot|discordbot|facebot",
+    r"googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|xbot|x-bot|rogerbot|linkedinbot|linkedin|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|redditbot|applebot|whatsapp|telegrambot|discordbot|facebot|prerender",
     re.IGNORECASE
 )
 
 @app.before_request
 def prerender_if_bot():
     user_agent = request.headers.get("User-Agent", "")
-    is_html = "text/html" in request.headers.get("Accept", "")
+    accept_header = request.headers.get("Accept", "")
+
     is_bot = BOT_USER_AGENTS.search(user_agent)
+    is_html = not accept_header or "text/html" in accept_header
 
     print("🔥 Incoming Request")
     print("User-Agent:", user_agent)
@@ -32,8 +34,9 @@ def prerender_if_bot():
     print("Is HTML?", is_html)
     print("URL:", request.url)
 
+    # Skip static files and API endpoints
     if request.path.startswith("/api") or request.path.startswith("/static") or "." in request.path:
-        print("Skipping (API/static)")
+        print("⏭️ Skipping (API/static/file)")
         return
 
     if is_bot and is_html and request.method == "GET":
@@ -46,7 +49,8 @@ def prerender_if_bot():
                 headers={"X-Prerender-Token": PRERENDER_TOKEN},
                 timeout=5
             )
-            print("✅ Prerender response:", prerender_response.status_code)
+
+            print("✅ Prerender responded with", prerender_response.status_code)
 
             return Response(
                 prerender_response.content,
@@ -55,7 +59,7 @@ def prerender_if_bot():
             )
         except Exception as e:
             print("❌ Prerender fetch failed:", str(e))
-            return None
+            return None  # fallback to regular SPA behavior
 
 
 def generate_description(content):
