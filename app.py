@@ -7,8 +7,9 @@ from models import create_access_token, get_jwt_identity, jwt_required, TokenBlo
 from slugify import slugify
 import os
 from flask_migrate import Migrate
-import re
 from flask import redirect
+import re
+from flask import Response
 
 
 migrate = Migrate(app, db)
@@ -25,16 +26,22 @@ def prerender_if_bot():
     is_bot = BOT_USER_AGENTS.search(user_agent)
     is_html = "text/html" in request.headers.get("Accept", "")
 
-    # Skip API and static paths
+    # Skip API, static files, and assets
     if request.path.startswith("/api") or request.path.startswith("/static") or "." in request.path:
         return
 
     if is_bot and is_html and request.method == "GET":
-        prerender_url = f"https://service.prerender.io{request.full_path}"
-        headers = {
-            "X-Prerender-Token": PRERENDER_TOKEN
-        }
-        return redirect(prerender_url, code=302)
+        prerender_url = f"https://service.prerender.io{request.url}"
+        try:
+            prerender_response = requests.get(
+                prerender_url,
+                headers={"X-Prerender-Token": PRERENDER_TOKEN},
+                timeout=5
+            )
+            return Response(prerender_response.content, status=prerender_response.status_code, content_type=prerender_response.headers.get("Content-Type", "text/html"))
+        except Exception as e:
+            print("Prerender fetch failed:", str(e))
+            return None  # fallback to normal route
 
 
 def generate_description(content):
