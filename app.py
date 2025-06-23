@@ -10,60 +10,111 @@ from flask_migrate import Migrate
 from flask import redirect
 import re
 import requests
-
+from urllib.parse import urlparse, urljoin, quote
 from flask import Response
 
 
 migrate = Migrate(app, db)
-PRERENDER_TOKEN = "gZw9IBA49cHU62VWwxDJ"
+PRERENDER_SERVICE = "https://service.prerender.io/"
+PRERENDER_TOKEN = "gZw9IBA49cHU62VWwxDJ"  # Move to environment variables in production
 
+# Pre-compiled regex for bot detection
 BOT_USER_AGENTS = re.compile(
-    r"googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|xbot|x-bot|rogerbot|linkedinbot|linkedin|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|redditbot|applebot|whatsapp|telegrambot|discordbot|facebot|prerender",
+    r"(googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|"
+    r"xbot|x-bot|rogerbot|linkedinbot|linkedin|embedly|quora link preview|"
+    r"showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|"
+    r"redditbot|applebot|whatsapp|telegrambot|discordbot|facebot|prerender)",
     re.IGNORECASE
 )
 
+# Paths to skip (both exact matches and prefixes)
+SKIP_EXACT_PATHS = {
+    '/robots.txt',
+    '/sitemap.xml',
+    '/favicon.ico',
+    '/health'
+}
+
+SKIP_PREFIX_PATHS = {
+    '/api/',
+    '/static/',
+    '/_next/',
+    '/assets/',
+    '/admin/',
+    '/wp-admin/'
+}
+
+# File extensions to skip
+SKIP_EXTENSIONS = {
+    '.js', '.css', '.xml', '.less', '.png', '.jpg', '.jpeg', '.gif',
+    '.pdf', '.doc', '.txt', '.ico', '.rss', '.zip', '.mp3', '.rar',
+    '.exe', '.wmv', '.avi', '.ppt', '.mpg', '.mpeg', '.tif', '.wav',
+    '.mov', '.psd', '.ai', '.xls', '.mp4', '.m4a', '.swf', '.dat',
+    '.dmg', '.iso', '.flv', '.m4v', '.torrent', '.woff', '.ttf',
+    '.svg', '.webp', '.json'
+}
+
 @app.before_request
 def prerender_if_bot():
-    user_agent = request.headers.get("User-Agent", "")
-    accept_header = request.headers.get("Accept", "")
-
-    is_bot = BOT_USER_AGENTS.search(user_agent)
-    is_html = "text/html" in accept_header or "*/*" in accept_header or not accept_header
-
-
-    print("🔥 Incoming Request")
-    print("User-Agent:", user_agent)
-    print("Is Bot?", is_bot is not None)
-    print("Is HTML?", is_html)
-    print("URL:", request.url)
-
-    # Skip static files and API endpoints
-    if request.path.startswith("/api") or request.path.startswith("/static") or "." in request.path:
-        print("⏭️ Skipping (API/static/file)")
+    # Skip non-GET requests immediately
+    if request.method != "GET":
         return
 
-    if is_bot and is_html and request.method == "GET":
-        prerender_url = f"https://service.prerender.io{request.full_path}"
-        print("🔁 Sending to Prerender:", prerender_url)
+    path = request.path
+    user_agent = request.headers.get("User-Agent", "")
+    accept = request.headers.get("Accept", "")
+
+    # Skip conditions
+    if (path in SKIP_EXACT_PATHS or
+        any(path.startswith(prefix) for prefix in SKIP_PREFIX_PATHS) or
+        any(path.endswith(ext) for ext in SKIP_EXTENSIONS)):
+        return
+
+    # Check if bot and wants HTML
+    is_bot = BOT_USER_AGENTS.search(user_agent) is not None
+    is_html = "text/html" in accept or "*/*" in accept or not accept
+
+
+
+    if is_bot and is_html:
+        # Construct proper Prerender URL
+        parsed = urlparse(request.url)
+        prerender_url = urljoin(
+            PRERENDER_SERVICE,
+            f"{parsed.scheme}://{parsed.netloc}{parsed.path}{'?' + parsed.query if parsed.query else ''}"
+        )
+        print(f"🤖 Bot detected: {user_agent}")
+        print(f"📄 HTML requested: {is_html}")
+        print(f"🔗 Final Prerender URL: {prerender_url}")
 
         try:
-            prerender_response = requests.get(
+            response = requests.get(
                 prerender_url,
-                headers={"X-Prerender-Token": PRERENDER_TOKEN},
-                timeout=5
+                headers={
+                    "X-Prerender-Token": PRERENDER_TOKEN,
+                    "User-Agent": user_agent  # Forward original UA
+                },
+                timeout=10,
+                allow_redirects=False
             )
 
-            print("✅ Prerender responded with", prerender_response.status_code)
+            if response.status_code == 200:
+                return Response(
+                    response.content,
+                    status=response.status_code,
+                    content_type=response.headers.get("Content-Type", "text/html"),
+                    headers={
+                        "Cache-Control": "public, max-age=3600",
+                        "Vary": "User-Agent"
+                    }
+                )
 
-            return Response(
-                prerender_response.content,
-                status=prerender_response.status_code,
-                content_type=prerender_response.headers.get("Content-Type", "text/html")
-            )
+        except requests.Timeout:
+            print(f"⌛ Prerender timeout for {request.url}")
         except Exception as e:
-            print("❌ Prerender fetch failed:", str(e))
-            return None  # fallback to regular SPA behavior
+            print(f"⚠️ Prerender error for {request.url}: {str(e)}")
 
+    return None  # Continue with normal request
 
 def generate_description(content):
     words = content.strip().split()
