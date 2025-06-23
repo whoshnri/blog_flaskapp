@@ -43,7 +43,7 @@ def prerender_if_bot():
         return
 
     if is_bot and is_html and request.method == "GET":
-        prerender_url = f"https://service.prerender.io{request.url}"
+        prerender_url = f"https://service.prerender.io{request.full_path}"
         print("🔁 Sending to Prerender:", prerender_url)
 
         try:
