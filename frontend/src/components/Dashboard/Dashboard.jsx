@@ -8,6 +8,7 @@ import FeedbackForm from "./components/Feedback"
 import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom'
 import { useParams } from "react-router-dom"
+import { Helmet } from "react-helmet-async";
 const API = import.meta.env.VITE_API_BASE_URL;
 
 const containerVariants = {
@@ -52,6 +53,21 @@ export default function Dashboard() {
 }, [])
 
   return (
+    <>
+    <Helmet>
+        <title>Dashboard | Quilled</title>
+        <meta name="description" content="Manage your posts and content" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Inter:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+  </Helmet>
+
+
     <div className="relative bg-zinc-900 cd:flex cd:justify-between max-h-[100vh] overflow-y-auto custom-scrollbar">
       {/* Sidebar is always visible on desktop */}
       <div className={`cd:w-[280px]  cd:block`}>
@@ -82,5 +98,6 @@ export default function Dashboard() {
         </motion.div>
       </AnimatePresence>
     </div>
+    </>
   )
 }

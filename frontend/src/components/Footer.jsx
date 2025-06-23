@@ -14,6 +14,7 @@ function Footer() {
                 rel="noopener noreferrer"
         >
         <Instagram
+        alt="instagramicon"
          className="hover:stroke-blue-500 hover:cursor-pointer"
           style={{ height: 48, width: 48 }}
         />
@@ -24,6 +25,7 @@ function Footer() {
                 rel="noopener noreferrer"
         >
         <Github
+        alt="githubicon"
          className="hover:stroke-blue-500 hover:cursor-pointer"
           style={{ height: 48, width: 48 }}
         />
@@ -34,6 +36,7 @@ function Footer() {
                 rel="noopener noreferrer"
         >
         <Twitter
+        alt="twittericon"
          className="hover:stroke-blue-500 hover:cursor-pointer"
           style={{ height: 48, width: 48 }}
         />

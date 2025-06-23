@@ -97,7 +97,7 @@ function HeroSection(blogRef) {
           <h2 className="text-2xl font-bold text-white">Today's Picks</h2>
           <Sparkles className="w-6 h-6 text-blue-400 animate-pulse delay-500" />
         </div>
-        <img src={Notfound} alt="Not found" className="mx-auto h-56 mb-6" />
+        <img src={Notfound} alt="notfound" className="mx-auto h-56 mb-6" />
 
         <div className="text-white text-center">No blogs yet</div>
         <button

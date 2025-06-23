@@ -5,13 +5,12 @@ import router from "./router";
 import { StackProvider, StackTheme } from "@stackframe/react";
 import { stackClientApp } from "./stack";
 import './index.css';
+import {HelmetProvider} from "react-helmet-async"
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <StackProvider app={stackClientApp}>
-      <StackTheme>
+    <HelmetProvider>
         <RouterProvider router={router} />
-      </StackTheme>
-    </StackProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );

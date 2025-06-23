@@ -15,8 +15,7 @@ import logo from "../../assets/logo.svg"
 
 
 
-const FloatingNav = ({ scrollToTarget}) => {
-  const [open, setOpen] = useState(false);
+const FloatingNav = ({ scrollToTarget, open , setOpen}) => {
   const navRef = useRef();
   const navigate = useNavigate()
 
@@ -58,7 +57,7 @@ const FloatingNav = ({ scrollToTarget}) => {
         {/* Slide-out Panel */}
         <div
           ref={navRef}
-          className={`fixed top-0 right-0 h-screen w-[300px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-in-out z-10
+          className={`fixed top-0 right-0 h-screen w-[250px] bg-[#0f0f0f] text-white shadow-2xl transition-transform duration-300 ease-in-out z-10
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
         >
@@ -147,7 +146,7 @@ const FloatingNav = ({ scrollToTarget}) => {
             >
               <img
                 src={bgImg}
-                alt="Henry Bassey"
+                alt="HenryBassey"
                 className="w-10 h-10 rounded-full border object-cover"
               />
               <div className="leading-tight">

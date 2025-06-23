@@ -96,7 +96,7 @@ export default function SearchPage({ setLoading, scrollRef }) {
       {/* Filters */}
       <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6 ">
        <div className="flex justify-between">
-        <h1 className="text-3xl font-bold mb-4">Browse blogs</h1>
+        <h1 className="text-2xl font-bold mb-4">Explore The Archive!</h1>
 
             <div className="cd:hidden ">
               <MobileNav></MobileNav>

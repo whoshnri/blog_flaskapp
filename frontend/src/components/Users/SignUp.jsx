@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, HomeIcon , Check} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import image1 from "./signup.jpg"
+import { Helmet } from "react-helmet-async";
 const API = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -252,12 +253,29 @@ export default function SignupForm() {
   const steps = [1, 2, 3, 4, 5];
 
   return (
+    <>
+    <Helmet>
+        <title>Create an account | Quilled</title>
+        <meta name="description" content="Start your creative journey! Create an account now" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href="https://quilled-5su6.onrender.com/signup" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </Helmet>
+
+
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center text-white sans z-50">
       <div className="flex w-[90%] h-[70%]">
       <div
       className={`relative h-full hidden cd:block ${show ? "cd:w-[50%] " : "cd:hidden"}`}
 >
       <img
+            alt="signup"
             src={image1}
             className="w-full h-full object-cover"
       />
@@ -265,7 +283,7 @@ export default function SignupForm() {
 ></div>
       </div>
       <div className={`w-full ${show ? "cd:w-[50%]" : "cd:w-full"}  bg-gradient-to-br from-black via-black/90 to-black/80 border border-gray-700 p-8 cd:rounded-none rounded-2xl shadow-2xl space-y-6 overflow-hidden`}>
-        <h2 className="text-2xl font-bold text-center ">Sign Up</h2>
+        <h1 className="text-2xl font-bold text-center ">Sign Up</h1>
         <div className="flex justify-center space-x-2 mb-4">
           {steps.map((s) => (
             <div
@@ -531,5 +549,6 @@ export default function SignupForm() {
       </div>
       </div>
     </div>
+    </>
   );
 }
