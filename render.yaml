@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: the-hb-blog
+    name: quilled
     env: python
     plan: free
     buildCommand: |
