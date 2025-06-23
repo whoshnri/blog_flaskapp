@@ -7,7 +7,34 @@ from models import create_access_token, get_jwt_identity, jwt_required, TokenBlo
 from slugify import slugify
 import os
 from flask_migrate import Migrate
+import re
+from flask import redirect
+
+
 migrate = Migrate(app, db)
+PRERENDER_TOKEN = "gZw9IBA49cHU62VWwxDJ"
+
+BOT_USER_AGENTS = re.compile(
+    r"googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|xbot|x-bot|rogerbot|linkedinbot|linkedin|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|redditbot|applebot|whatsapp|telegrambot|discordbot|facebot",
+    re.IGNORECASE
+)
+
+@app.before_request
+def prerender_if_bot():
+    user_agent = request.headers.get("User-Agent", "")
+    is_bot = BOT_USER_AGENTS.search(user_agent)
+    is_html = "text/html" in request.headers.get("Accept", "")
+
+    # Skip API and static paths
+    if request.path.startswith("/api") or request.path.startswith("/static") or "." in request.path:
+        return
+
+    if is_bot and is_html and request.method == "GET":
+        prerender_url = f"https://service.prerender.io{request.full_path}"
+        headers = {
+            "X-Prerender-Token": PRERENDER_TOKEN
+        }
+        return redirect(prerender_url, code=302)
 
 
 def generate_description(content):
