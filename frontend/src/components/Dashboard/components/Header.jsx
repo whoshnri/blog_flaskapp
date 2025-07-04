@@ -1,6 +1,7 @@
 "use client"
 
 import bgpixel from '../../../assets/bgpixel.jpg'
+import placeholder from './placeholder.jpg'
 import { motion } from "framer-motion"
 import { User2Icon, Share2, HomeIcon, BellIcon, SettingsIcon, PencilIcon, User, LogOut } from "lucide-react"
 import { useState } from 'react'
@@ -34,11 +35,9 @@ export default function HeaderSidebar({user}) {
           transition={{ type: "spring", stiffness: 300 }}
         >
           <img
-            src="/placeholder.svg?height=64&width=64"
+            src={placeholder}
             alt="Profile"
-            width={130}
-            height={130}
-            className="rounded-full ring-2 ring-white ring-offset-2 mt-4 ring-offset-black z-10"
+            className="rounded-full h-24 w-24 ring-2 ring-white ring-offset-2 mt-4 ring-offset-black z-10 object-cover"
           />
         </motion.div>
 
@@ -62,6 +61,10 @@ export default function HeaderSidebar({user}) {
               onClick={() =>  navigate("/logout")}
               role='button'
               className="w-5 h-5 cd:hidden hover:text-red-600 transition" />
+            {/*<SettingsIcon
+              onClick={() =>  navigate("/logout")}
+              role='button'
+              className="w-5 h-5 cd:hidden hover:text-green-600 transition" />*/}
           </div>
         </motion.div>
 

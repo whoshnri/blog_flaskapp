@@ -1,7 +1,7 @@
 from models import User, Blog,Comments, app, db, hash_password, verify_password, cache, InteractionTracker
 from sqlalchemy import func
 from flask import jsonify, request,send_from_directory
-from tools import timestamp, time_difference, generate_opaque_id,add_to_sheet,add_to_sheet_one
+from tools import timestamp, time_difference, generate_opaque_id
 from datetime import datetime
 from models import create_access_token, get_jwt_identity, jwt_required, TokenBlocklist, get_jwt
 from slugify import slugify
@@ -13,7 +13,8 @@ import requests
 from urllib.parse import urlparse, urljoin, quote
 from flask import Response
 
-
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby1ToxE9ooC10WA7kjW7YxJWebZhDDZE7rhw_AYq--Z8FeUQOP-nafUBEaPgr1UuAcf5A/exec"
+GOOGLE_SCRIPT_URL2 = "https://script.google.com/macros/s/AKfycbwH79pohvQi8g9agkB4wgQ1VEwXjZYCHjSwN9koG64o2s8qvZe5qfRzeRLPlT8GPBsR/exec"
 migrate = Migrate(app, db)
 PRERENDER_SERVICE = "https://service.prerender.io/"
 PRERENDER_TOKEN = "gZw9IBA49cHU62VWwxDJ"  # Move to environment variables in production
@@ -27,7 +28,6 @@ BOT_USER_AGENTS = re.compile(
     re.IGNORECASE
 )
 
-# Paths to skip (both exact matches and prefixes)
 SKIP_EXACT_PATHS = {
     '/robots.txt',
     '/sitemap.xml',
@@ -44,7 +44,6 @@ SKIP_PREFIX_PATHS = {
     '/wp-admin/'
 }
 
-# File extensions to skip
 SKIP_EXTENSIONS = {
     '.js', '.css', '.xml', '.less', '.png', '.jpg', '.jpeg', '.gif',
     '.pdf', '.doc', '.txt', '.ico', '.rss', '.zip', '.mp3', '.rar',
@@ -56,7 +55,6 @@ SKIP_EXTENSIONS = {
 
 @app.before_request
 def prerender_if_bot():
-    # Skip non-GET requests immediately
     if request.method != "GET":
         return
 
@@ -77,51 +75,44 @@ def prerender_if_bot():
 
 
     if is_bot and is_html:
-        # Get the complete URL with protocol and domain
-        full_url = request.url
+        # Force HTTPS and proper URL encoding
+        target_url = request.url.replace('http://', 'https://')
+        prerender_url = f"{PRERENDER_SERVICE.rstrip('/')}/{quote(target_url, safe=':/?&=')}"
 
-        # URL encode the target URL
-        encoded_url = quote(full_url, safe=':/?&=')
-
-        # Construct the final Prerender URL
-        prerender_url = f"{PRERENDER_SERVICE.rstrip('/')}/{encoded_url}"
-
-        print(f"🤖 Bot detected: {user_agent}")
-        print(f"📄 HTML requested: {is_html}")
-        print(f"🔗 Final Prerender URL: {prerender_url}")
+        print(f"🚀 Sending to Prerender: {prerender_url}")
 
         try:
             response = requests.get(
                 prerender_url,
                 headers={
                     "X-Prerender-Token": PRERENDER_TOKEN,
-                    "User-Agent": user_agent
+                    "User-Agent": user_agent,
+                    "X-Prerender-Wait-For-Render": "30000",  # 30 second timeout
+                    "X-Prerender-Debug": "true"  # Get debug info
                 },
-                timeout=25,  # Increased timeout for Render
-                allow_redirects=False
+                timeout=35  # Slightly longer than Prerender's timeout
             )
 
             if response.status_code == 200:
-                return Response(
-                    response.content,
-                    status=response.status_code,
-                    content_type=response.headers.get("Content-Type", "text/html"),
-                    headers={
-                        "Cache-Control": "public, max-age=300",
-                        "Vary": "User-Agent"
-                    }
-                )
+                # Verify it's actually prerendered
+                if 'text/html' in response.headers.get('Content-Type', ''):
+                    return Response(
+                        response.content,
+                        status=200,
+                        headers={
+                            'Content-Type': 'text/html',
+                            'Cache-Control': 'public, max-age=300'
+                        }
+                    )
+                else:
+                    print("⚠️ Prerender returned non-HTML content")
 
         except requests.Timeout:
-            print(f"⌛ Prerender timeout for {prerender_url}")
-            # Optional: Serve cached version if available
-            return None
+            print("⌛ Prerender timeout - falling back to SPA")
         except Exception as e:
             print(f"⚠️ Prerender error: {str(e)}")
-            return None
 
-    return None  # Continue with normal request
-
+    return None
 def generate_description(content):
     words = content.strip().split()
     return " ".join(words[:50]) + "..." if len(words) > 50 else " ".join(words[:-1]) + "..."
@@ -245,7 +236,7 @@ def user(username):
 @app.route("/check", methods=['POST'])
 def check_user():
     data = request.get_json()
-    print(data["i"])  # Debug print — consider removing for production
+    print(data["i"])
 
     if data['i'] == "email":
         user = User.query.filter_by(email=data['email']).first()
@@ -461,7 +452,7 @@ def add_comment(pid):
 # Add a like to a blog post
 @app.route("/add/likes/<string:id>", methods=['PATCH'])
 def add_likes(id):
-    ip = request.remote_addr
+    ip = get_real_ip()
     if InteractionTracker.query.filter_by(blog_pid=id, ip_address=ip, interaction_type='like').first():
         return jsonify({"message": "Already liked", "status": 403}), 403
 
@@ -474,20 +465,18 @@ def add_likes(id):
     db.session.commit()
     return jsonify({"message": "Like added", "likes": blog.likes, "status": 200}), 200
 
-# Add a view to a blog post
 def get_real_ip():
     forwarded_for = request.headers.get('X-Forwarded-For', '')
     if forwarded_for:
-        # Split multiple proxies and take the first IP (the client)
         return forwarded_for.split(',')[0].strip()
     return request.remote_addr
 
 @app.route("/add/views/<string:id>", methods=['PATCH'])
 def add_views(id):
     ip = get_real_ip()
-    today = timestamp()  # Should return something like "2025-06-18"
+    today = timestamp()
 
-    # Check if this IP already viewed the blog today
+
     already_viewed = InteractionTracker.query.filter_by(
         blog_pid=id,
         ip_address=ip,
@@ -568,11 +557,15 @@ def send_feedback():
     if not email or not feedback or rating is None:
         return jsonify({"message": "Missing fields", "status": 400}), 400
 
-    res = add_to_sheet(email, feedback, rating)
-    if res == 200:
-        return jsonify({"message": "Feedback received", "status": 200}), 200
-    else:
-        return jsonify({"message": "Unexpected error", "status": 500}), 522
+    try:
+        response = requests.post(GOOGLE_SCRIPT_URL2, json={
+            "email": email,
+            "feedback" : feedback,
+            "rating" : rating
+            })
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route("/newsletter", methods=["POST"])
@@ -581,14 +574,13 @@ def newsletter():
     email = data.get("email")
 
     if not email:
-        return jsonify({"message": "Missing fields", "status": 400}), 400
-    res = add_to_sheet_one(email)
-    if res == 200:
-        return jsonify({"message": "email received", "status": 200}), 200
-    else:
-        return jsonify({"message": "Error saving email",  "status": 500}), 500
+        return jsonify({"message": "Missing email field", "status": 400}), 400
 
-
+    try:
+        response = requests.post(GOOGLE_SCRIPT_URL, json={"email": email})
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/debug/interactions", methods=["GET"])
 def print_interactions():

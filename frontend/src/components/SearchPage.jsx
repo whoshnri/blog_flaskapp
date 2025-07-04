@@ -12,10 +12,13 @@ import { Helmet } from "react-helmet-async";
 const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
+  const [open, setOpen] = useState(false);
+
+
 
   const sidebarClasses = "hidden cd:block min-w-56 h-screen bg-[#0f0f0f] border-r border-gray-800 fixed top-0 left-0 overflow-hidden z-10";
   const mainClasses = `relative ml-0 cd:ml-56 w-full flex-1 custom-scrollbar bg-black text-white ${
-    loading ? "overflow-hidden" : "overflow-y-auto"
+    loading || open ? "overflow-hidden" : "overflow-y-auto"
   }`;
 
   return (
@@ -54,7 +57,7 @@ const SearchPage = () => {
 
             {/* Main Content */}
             <main ref={scrollRef} className={mainClasses}>
-              <SearchPageComponent setLoading={setLoading} scrollRef={scrollRef} />
+              <SearchPageComponent open={open} setOpen={setOpen}  setLoading={setLoading} scrollRef={scrollRef} />
               <Footer />
               {loading && <Loader />}
             </main>

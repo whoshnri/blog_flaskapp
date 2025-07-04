@@ -139,18 +139,6 @@ export default function RecentPosts({username, uuid}) {
               </div>
             )}
         </div>
-
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="group uppercase mx-auto mt-4 bg-white text-black px-6 py-2 rounded-full flex items-center gap-2 text-sm font-bold hover:bg-gray-200 transition-colors duration-300"
-        >
-          View All
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-        </motion.button>
       </motion.section>
     </>
   )

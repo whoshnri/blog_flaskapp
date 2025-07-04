@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Tag, User, Calendar, Search } from "lucide-react";
+import { Tag, User, Clock, ArrowRight, Search, Eye, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MobileNav from "./navs/SearchNav"
 const API = import.meta.env.VITE_API_BASE_URL;
@@ -31,7 +31,7 @@ const getCategoryBadgeColor = (num) => {
   }
 };
 
-export default function SearchPage({ setLoading, scrollRef }) {
+export default function SearchPage({ setLoading, scrollRef, open , setOpen }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -39,6 +39,7 @@ export default function SearchPage({ setLoading, scrollRef }) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [data, setData] = useState([]);
+
 
   const filteredData = data.filter((item) => {
     const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
@@ -92,14 +93,14 @@ export default function SearchPage({ setLoading, scrollRef }) {
 
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
+    <div className={`relative min-h-screen bg-black text-white overflow-x-hidden `}>
       {/* Filters */}
       <div className="sticky top-0 z-10 bg-black/90 backdrop-blur border-b border-gray-800 p-4 mb-6 ">
        <div className="flex justify-between">
         <h1 className="text-2xl font-bold mb-4">Explore The Archive!</h1>
 
             <div className="cd:hidden ">
-              <MobileNav></MobileNav>
+              <MobileNav open={open} setOpen={setOpen}></MobileNav>
             </div>
            </div>
             <input
@@ -146,42 +147,8 @@ export default function SearchPage({ setLoading, scrollRef }) {
             return (
               <div
                 key={item.pid}
-                onClick={() => navigate(`/read/${item.pid}`)}
-                className={`group relative bg-gradient-to-br ${getCategoryColor(color)} backdrop-blur-sm border rounded-2xl px-6 py-3 hover:scale-95 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer`}
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  animation: "fadeInUp 0.6s ease-out forwards",
-                }}
-              >
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 via-blue-500/0 to-green-500/0 group-hover:from-purple-500/10 group-hover:via-blue-500/10 group-hover:to-green-500/10 transition-all duration-500"></div>
-                <div className="relative z-10">
-                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border mb-2 ${getCategoryBadgeColor(color)}`}>
-                    <Tag className="w-3 h-3" />
-                    {item.category}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-300">{item.title}</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <User className="w-4 h-4 text-gray-400" />
-                      <span>{item.author}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Calendar className="w-4 h-4" />
-                      <span>{item.created}</span>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <span className="group-parent hover:underline">Read blog</span>
-                    <svg
-                      className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
+                onClick={() => navigate(`/read/${item.pid}`)}>
+                <BlogCard navigate={navigate} blog={item}/>
               </div>
             );
           })
@@ -198,3 +165,54 @@ export default function SearchPage({ setLoading, scrollRef }) {
     </div>
   );
 }
+
+
+const BlogCard = ({ navigate, blog, className = "" }) => (
+  <div
+    onClick={() => navigate(`/read/${blog.pid}`)}
+    className={`group cursor-pointer relative bg-black/50 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all duration-300 hover:scale-[1.02] ${className}`}
+  >
+    <div className="p-4">
+      <div className="flex items-center gap-1 mb-3 flex-wrap">
+        <span className="flex gap-1 items-center text-xs font-medium text-blue-400 bg-blue-400/10 px-2 py-1 rounded-full">
+          <Tag className="w-3 h-3" />
+          {blog.category}
+        </span>
+        <span className="text-xs text-gray-600">|</span>
+        <span className="flex gap-1 items-center text-xs font-medium text-gray-400 bg-gray-400/10 px-2 py-1 rounded-full">
+          <Clock className="w-3 h-3" />
+          {blog.created}
+        </span>
+        <span className="text-xs text-gray-600">|</span>
+        <span className="flex gap-1 items-center text-xs font-medium text-gray-400 bg-gray-400/10 px-2 py-1 rounded-full">
+          <User className="w-3 h-3" />
+          {blog.author}
+        </span>
+      </div>
+
+      <h3 className="text-sm font-semibold text-white mb-2 leading-tight group-hover:text-gray-300 transition-colors">
+        {blog.title}
+      </h3>
+
+      <div
+        className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2 prose prose-invert"
+        dangerouslySetInnerHTML={{ __html: blog.desc }}
+      ></div>
+
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1 text-gray-500">
+            <Eye className="w-3 h-3" />
+            <span>{blog.views}</span>
+          </div>
+          <div className="flex items-center gap-1 text-gray-500">
+            <Heart className="w-3 h-3" />
+            <span>{blog.likes}</span>
+          </div>
+        </div>
+
+        <ArrowRight className="w-3 h-3 text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all duration-300" />
+      </div>
+    </div>
+  </div>
+);

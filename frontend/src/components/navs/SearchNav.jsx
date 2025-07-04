@@ -14,8 +14,7 @@ import logo from "../../assets/logo.svg"
 
 
 
-const FloatingNav2 = ({ scrollToTarget}) => {
-  const [open, setOpen] = useState(false);
+const FloatingNav2 = ({ scrollToTarget, open , setOpen}) => {
   const navRef = useRef();
   const navigate = useNavigate()
 

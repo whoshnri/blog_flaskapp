@@ -2,39 +2,43 @@
 
 import React from "react"
 const API = import.meta.env.VITE_API_BASE_URL;
+const SCRIPT = import.meta.env.VITE_SCRIPT_URL;
+
+
 import { useState } from "react"
 
 export function SubscribeSection({targetRef}) {
   const [email, setEmail] = useState("")
-  const [submutted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
-  const handleSubmit = async (e) => {
-  e.preventDefault()
-  setSubmitted(true)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitted(true);
+  setFeedback(""); // clear any previous feedback
+
   try {
     const res = await fetch(`${API}/newsletter`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({"email" : email}),
-    })
-
+      body: JSON.stringify({ email }),
+    });
     const result = await res.json()
-
-    if (res.ok) {
-    } else {
-      console.error("Feedback error:", result.message)
-      alert(result.message || "Submission failed.")
+    if(res.ok){
+      setFeedback("Thanks for subscribing");
     }
-  } catch (error) {
-    console.error("Network error:", error)
-    alert("Could not submit email. Please try again later.")
-  } finally {
-    setEmail("")
-    setTimeout(() => setSubmitted(false), 1000)
   }
-}
+  catch (error) {
+    console.error("Network error:", error);
+    setFeedback("Could not submit email. Please try again later.");
+  } finally {
+    setEmail("");
+    setTimeout(() => setSubmitted(false), 1000);
+  }
+};
+
 
 
   return (
@@ -66,9 +70,10 @@ export function SubscribeSection({targetRef}) {
               type="submit"
               className="absolute right-1 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-2 rounded-lg font-semibold hover:bg-black/90 transition"
             >
-          {!submutted ? <span>SUBMIT</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
+          {!submitted ? <span>SUBMIT</span> : <div className="w-6 h-6 border-2 border-b-transparent rounded-full animate-spin"></div>}
             </button>
           </label>
+          <p className="mx-auto w-fit text-white font-sans text-xs">{feedback}</p>
         </form>
     </section>
   )

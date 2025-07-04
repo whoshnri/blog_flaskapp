@@ -8,14 +8,12 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 // Enhanced HTML Parser with dark theme styling
 const parse = (html) => {
-  // Create a temporary div to process the HTML
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
 
   // Apply dark theme styles to common elements
   const processNode = (node) => {
     if (node.nodeType === Node.ELEMENT_NODE) {
-      // Force readable text colors
       if (['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th'].includes(node.tagName.toLowerCase())) {
         const currentColor = window.getComputedStyle(node).color;
         if (currentColor === 'rgb(0, 0, 0)' || currentColor === 'black' || !currentColor || currentColor === 'rgba(0, 0, 0, 0)') {
